@@ -1,13 +1,10 @@
--- Read the docs: https://www.lunarvim.org/docs/configuration
--- Video Tutorials: https://www.youtube.com/watch?v=sFA9kX-Ud_c&list=PLhoH5vyxr6QqGu0i7tt_XoVK9v-KvZ3m6
--- Forum: https://www.reddit.com/r/lunarvim/
--- Discord: https://discord.com/invite/Xb9B4Ny
-
+-- Setup Prettier
 local formatters = require "lvim.lsp.null-ls.formatters"
 formatters.setup {
   { name = "prettier" }
 }
 
+-- Plugins
 lvim.plugins = {
   -- Colorschemes
   { "lunarvim/colorschemes" },
@@ -19,7 +16,6 @@ lvim.plugins = {
   {
     "Exafunction/codeium.vim",
     config = function()
-      -- Change '<C-g>' here to any keycode you like.
       vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true })
     end
   },
@@ -42,6 +38,8 @@ lvim.plugins = {
       })
     end,
   },
+
+  -- Smooth scrolling
   {
     "karb94/neoscroll.nvim",
     event = "WinScrolled",
@@ -61,6 +59,8 @@ lvim.plugins = {
       })
     end
   },
+
+  -- Tabout
   {
     "abecodes/tabout.nvim",
     config = function()
@@ -88,8 +88,13 @@ lvim.plugins = {
   }
 }
 
+-- Default colorscheme // Set colorscheme here
 lvim.colorscheme = "material-deep-ocean"
+
+-- Format on save
 lvim.format_on_save.enabled = true
+
+-- Relative line numbers
 vim.wo.relativenumber = true
 
 -- Useful remaps
