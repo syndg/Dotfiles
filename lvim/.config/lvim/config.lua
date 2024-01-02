@@ -85,7 +85,11 @@ lvim.plugins = {
         exclude = {} -- tabout will ignore these filetypes
       }
     end,
-  }
+  },
+
+  -- Discord Presense
+  { "andweeb/presence.nvim" }
+
 }
 
 -- Default colorscheme // Set colorscheme here
