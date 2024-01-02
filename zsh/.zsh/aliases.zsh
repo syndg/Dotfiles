@@ -26,7 +26,7 @@ alias tx="tmux"
 alias txa="tmux attach -t"
 
 # Directories
-alias projects="cd ~/Coding/projects"
-alias opensource="cd ~/Coding/projects/opensource"
-alias blogs="cd ~/Coding/blogPosts"
-alias dots="cd ~/dotfiles"
+hash -d projects="/home/syndg/Coding/projects"
+hash -d opensource="/home/syndg/Coding/projects/opensource"
+hash -d blogs="/home/syndg/Coding/blogPosts"
+hash -d dots="/home/syndg/dotfiles"
