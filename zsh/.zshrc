@@ -39,3 +39,6 @@ elif [ "$SSH_AUTH_SOCK" ] && [ $agent_run_state = 1 ]; then
 fi
 
 unset env
+
+# nvm
+source /usr/share/nvm/init-nvm.sh
