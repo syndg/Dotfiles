@@ -12,6 +12,11 @@ alias grv="git remote -v"
 alias gd="git diff"
 alias gpl="git pull"
 
+# npm, pnpm, bun
+alias brun="bun run"
+alias pnpmrun="pnpm run"
+alias npmrun="npm run"
+
 # Package aliases
 alias install="yay -S"
 
