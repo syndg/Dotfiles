@@ -40,3 +40,10 @@ alias projects="cd ~/Coding/projects"
 alias opensource="cd ~/Coding/projects/opensource"
 alias blogs="cd ~/Coding/blogPosts"
 alias dots="cd ~/dotfiles"
+alias pp="cd ~/Coding/projects/personal"
+alias osp="cd ~/Coding/projects/opensource"
+
+
+# Web-dev aliases
+alias shadcn="bunx --bun shadcn-ui@latest"
+alias cna="bunx --bun create-next-app@latest"
