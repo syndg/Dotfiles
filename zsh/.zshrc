@@ -8,6 +8,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 source $HOME/.zsh/synhigh/zsh-syntax-highlighting.zsh
 source $HOME/.zsh/aliases.zsh
+source $HOME/.zsh/functions.zsh
 
 # bun completions
 [ -s "/home/syndg/.bun/_bun" ] && source "/home/syndg/.bun/_bun"
