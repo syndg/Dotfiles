@@ -48,6 +48,7 @@ source /usr/share/nvm/init-nvm.sh
 eval "$(zoxide init zsh)"
 
 PATH=~/.console-ninja/.bin:$PATH
+
 # pnpm
 export PNPM_HOME="/home/syndg/.local/share/pnpm"
 case ":$PATH:" in
@@ -55,3 +56,5 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+clear

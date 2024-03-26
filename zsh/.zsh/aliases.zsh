@@ -11,6 +11,13 @@ alias grm="git remote rm"
 alias grv="git remote -v"
 alias gd="git diff"
 alias gpl="git pull"
+alias gst="git stash"
+alias gsta="git stash apply"
+alias gstd="git stash drop"
+alias gstl="git stash list"
+alias gstp="git stash pop"
+alias gsts="git stash save"
+alias gagst="git add . && git stash"
 
 # npm, pnpm, bun
 alias brun="bun run"
