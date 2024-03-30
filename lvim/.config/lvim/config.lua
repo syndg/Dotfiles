@@ -88,8 +88,35 @@ lvim.plugins = {
   },
 
   -- Discord Presense
-  { "andweeb/presence.nvim" }
+  { "andweeb/presence.nvim" },
 
+  -- TS-Error
+  {
+    "dmmulroy/ts-error-translator.nvim",
+    config = function()
+      require("ts-error-translator").setup({
+        auto_override_publish_diagnostics = true,
+      })
+    end
+  },
+
+  -- Autotag/AutoRename
+  {
+    "windwp/nvim-ts-autotag",
+    config = function()
+      require("nvim-ts-autotag").setup()
+    end
+  },
+
+  -- Nvim Surround
+  {
+    "kylechui/nvim-surround",
+    version = "*",
+    event = "VeryLazy",
+    config = function()
+      require("nvim-surround").setup()
+    end
+  }
 }
 
 -- Default colorscheme // Set colorscheme here
@@ -104,3 +131,6 @@ vim.wo.relativenumber = true
 -- Useful remaps
 vim.keymap.set("n", "H", "^")
 vim.keymap.set("n", "L", "$")
+
+vim.api.nvim_set_keymap('n', ']e', ':lua vim.diagnostic.goto_next({severity = vim.diagnostic.severity.ERROR})<CR>zz',
+  { noremap = true, silent = true })
