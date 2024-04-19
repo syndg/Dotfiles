@@ -1,6 +1,6 @@
 # Git Commit, Add all and Push — in one step.
 gcap() {
-    git commit -m "$*" && git push
+    git commit -m "$*" 
 }
 
 # NEW.
@@ -47,4 +47,9 @@ $GREEN grlz$NORMAL — 🚀 RELEASE
 $GREEN gdoc$NORMAL — 📖 DOC
 $GREEN gtst$NORMAL — 🧪️ TEST
 $GREEN gbrk$NORMAL — ‼️ BREAKING"
+}
+
+# Compile and run CPP
+runcpp() {
+    g++ "$1" && ./a.out
 }
