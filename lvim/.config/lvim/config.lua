@@ -11,6 +11,11 @@ lvim.plugins = {
   { "marko-cerovac/material.nvim" },
   { "easymotion/vim-easymotion" },
   { "olivercederborg/poimandres.nvim" },
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    priority = 1000
+  },
 
   -- Completions
   {
