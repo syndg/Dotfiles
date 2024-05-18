@@ -1,3 +1,5 @@
+export LC_ALL=en_US.UTF-8
+
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
@@ -16,7 +18,6 @@ source $HOME/.zsh/functions.zsh
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
-export LC_ALL=en_US.UTF-8
 
 # ssh-agent
 env=~/.ssh/agent.env
@@ -55,6 +56,4 @@ case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
-# pnpm end
 
-clear
