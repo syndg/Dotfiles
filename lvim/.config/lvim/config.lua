@@ -9,13 +9,22 @@ lvim.plugins = {
   -- Colorschemes
   { "lunarvim/colorschemes" },
   { "marko-cerovac/material.nvim" },
-  { "easymotion/vim-easymotion" },
   { "olivercederborg/poimandres.nvim" },
   {
     "catppuccin/nvim",
     name = "catppuccin",
     priority = 1000
   },
+  {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {},
+  },
+
+  -- Motion
+  { "easymotion/vim-easymotion" },
+
 
   -- Completions
   {
@@ -125,7 +134,7 @@ lvim.plugins = {
 }
 
 -- Default colorscheme // Set colorscheme here
-lvim.colorscheme = "material-deep-ocean"
+lvim.colorscheme = "tokyonight-night"
 
 -- Format on save
 lvim.format_on_save.enabled = true
