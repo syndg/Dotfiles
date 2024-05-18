@@ -8,6 +8,9 @@ fi
 # Customize to your needs...
 export PATH="$HOME/.local/bin:$PATH"
 
+# HOMEBREW
+export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
+
 source $HOME/.zsh/synhigh/zsh-syntax-highlighting.zsh
 source $HOME/.zsh/aliases.zsh
 source $HOME/.zsh/functions.zsh
@@ -43,7 +46,7 @@ fi
 unset env
 
 # nvm
-source /usr/share/nvm/init-nvm.sh
+# source /usr/share/nvm/init-nvm.sh
 
 # zoxide
 eval "$(zoxide init zsh)"
