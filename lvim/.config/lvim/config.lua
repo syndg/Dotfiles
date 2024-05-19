@@ -134,7 +134,7 @@ lvim.plugins = {
 }
 
 -- Default colorscheme // Set colorscheme here
-lvim.colorscheme = "tokyonight-night"
+lvim.colorscheme = "material-deep-ocean"
 
 -- Format on save
 lvim.format_on_save.enabled = true
