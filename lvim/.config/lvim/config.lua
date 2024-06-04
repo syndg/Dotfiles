@@ -102,7 +102,7 @@ lvim.plugins = {
   },
 
   -- Discord Presense
-  { "andweeb/presence.nvim" },
+  -- { "andweeb/presence.nvim" },
 
   -- TS-Error
   {
