@@ -21,9 +21,9 @@ alias gsts="git stash save"
 alias gagst="git add . && git stash"
 
 # npm, pnpm, bun
-alias brun="bun run"
-alias pnpmrun="pnpm run"
-alias npmrun="npm run"
+alias br="bun run"
+alias brb="bun run build"
+alias brd="bun run dev"
 
 # Package aliases
 alias install="yay -S"
