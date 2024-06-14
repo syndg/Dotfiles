@@ -155,6 +155,12 @@ lvim.plugins = {
 -- Default colorscheme // Set colorscheme here
 lvim.colorscheme = "material-deep-ocean"
 
+-- Dismiss Noice notifications
+vim.keymap.set("n", "<leader>nd", "<cmd>NoiceDismiss<CR>", { desc = "Dismiss Noice Message" })
+
+-- Remove search highlight
+vim.keymap.set("n", "<esc>", "<cmd>nohl<CR>", { desc = "Remove search highlight" })
+
 -- Format on save
 lvim.format_on_save.enabled = true
 
