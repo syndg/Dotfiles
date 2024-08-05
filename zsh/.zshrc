@@ -46,7 +46,7 @@ fi
 unset env
 
 # nvm
-# source /usr/share/nvm/init-nvm.sh
+source /usr/share/nvm/init-nvm.sh
 
 # zoxide
 eval "$(zoxide init zsh)"
