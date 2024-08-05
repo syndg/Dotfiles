@@ -1,6 +1,11 @@
-# Git Commit, Add all and Push — in one step.
+# Git Commit, Add all — in one step.
 gcap() {
     git commit -m "$*"
+}
+
+# UPDATE
+gup() {
+    gcap "🛠️ UPDATE: $@"
 }
 
 # NEW.
