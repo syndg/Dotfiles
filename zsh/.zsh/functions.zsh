@@ -86,6 +86,11 @@ generatepgurl() {
     pgconnection
 }
 
+# Make a directory and z into it:
+mkcd() {
+  mkdir -p "$1" && z "$1"
+}
+
 # Source this file in your shell configuration to make the functions available
 # For example, add the following line to your ~/.bashrc or ~/.bash_profile:
 # source /path/to/this/file.sh

@@ -46,3 +46,6 @@ alias txa="tmux attach -t"
 # Web-dev aliases
 alias shadcn="bunx --bun shadcn-ui@latest"
 alias cna="bunx --bun create-next-app@latest"
+
+# Clear
+alias c="clear"
