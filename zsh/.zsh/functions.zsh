@@ -91,6 +91,44 @@ mkcd() {
   mkdir -p "$1" && z "$1"
 }
 
+new_project() {
+  while getopts f:n: flag
+  do
+    case "${flag}" in
+      f) folder=${OPTARG};;
+      n) project_name=${OPTARG};;
+      *) echo "Usage: new-project -f [folder] -n [project-name]"; return 1;;
+    esac
+  done
+
+  # Define the base directory
+  base_dir=~/coding
+
+  # Create the target directory path
+  target_dir="$base_dir/$folder"
+
+  # Check if the directory exists, if not create it
+  if [ ! -d "$target_dir" ]; then
+    echo "Directory $target_dir does not exist. Creating it..."
+    mkdir -p "$target_dir"
+  fi
+
+  # Navigate to the target directory
+  cd "$target_dir" || return
+
+  # Call the alias to create a new Next.js project with the provided name
+  cna "$project_name"
+
+  # Navigate to the newly created project folder after cna finishes
+  cd "$project_name" || return
+  echo "You are now inside: $(pwd)"
+}
+
+# Usage example:
+# new_project -f freelance -n New-Project
+
+
 # Source this file in your shell configuration to make the functions available
 # For example, add the following line to your ~/.bashrc or ~/.bash_profile:
 # source /path/to/this/file.sh
+

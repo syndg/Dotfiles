@@ -1,8 +1,12 @@
+-- Default colorscheme // Set colorscheme here
+lvim.colorscheme = "material-deep-ocean"
+
 -- Setup Prettier
 local formatters = require "lvim.lsp.null-ls.formatters"
 formatters.setup {
   { name = "prettier" }
 }
+
 
 -- Plugins
 lvim.plugins = {
@@ -27,11 +31,24 @@ lvim.plugins = {
 
 
   -- Completions
+  -- {
+  --   "Exafunction/codeium.vim",
+  --   config = function()
+  --     vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true })
+  --   end
+  -- },
+
   {
-    "Exafunction/codeium.vim",
+    "supermaven-inc/supermaven-nvim",
     config = function()
-      vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true })
-    end
+      require("supermaven-nvim").setup({
+        keymaps = {
+          accept_suggestion = "<C-g>",
+          clear_suggestion = "<C-]>",
+          accept_word = "<C-j>",
+        },
+      })
+    end,
   },
 
   -- Color highlighter
@@ -145,21 +162,19 @@ lvim.plugins = {
       -- OPTIONAL:
       --   `nvim-notify` is only needed, if you want to use the notification view.
       --   If not available, we use `mini` as the fallback
-      "rcarriga/nvim-notify",
+      -- "rcarriga/nvim-notify",
     }
   }
 }
 
 
 
--- Default colorscheme // Set colorscheme here
-lvim.colorscheme = "material-deep-ocean"
-
--- Dismiss Noice notifications
-vim.keymap.set("n", "<leader>nd", "<cmd>NoiceDismiss<CR>", { desc = "Dismiss Noice Message" })
 
 -- Remove search highlight
 vim.keymap.set("n", "<esc>", "<cmd>nohl<CR>", { desc = "Remove search highlight" })
+
+-- Best remap ever
+vim.keymap.set("x", "<leader>P", '"_dP')
 
 -- Format on save
 lvim.format_on_save.enabled = true
