@@ -132,3 +132,28 @@ new_project() {
 # For example, add the following line to your ~/.bashrc or ~/.bash_profile:
 # source /path/to/this/file.sh
 
+# Function to list Wi-Fi networks and connect to one
+function connect_wifi() {
+  # List available Wi-Fi networks
+  echo "Scanning for available Wi-Fi networks..."
+  nmcli device wifi list | cat
+  
+  # Prompt user for the SSID and password
+  echo -n "Enter the SSID of the network: "
+  read ssid
+  
+  echo -n "Enter the Wi-Fi password: "
+  read -s password  # -s makes the input silent
+  
+  echo "\nConnecting to $ssid..."
+  
+  # Attempt to connect to the network
+  nmcli device wifi connect "$ssid" password "$password"
+  
+  if [[ $? -eq 0 ]]; then
+    echo "Connected to $ssid successfully!"
+  else
+    echo "Failed to connect to $ssid. Please check the SSID and password."
+  fi
+}
+
