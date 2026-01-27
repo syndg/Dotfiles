@@ -1,4 +1,10 @@
 export LC_ALL=en_US.UTF-8
+export EDITOR=nvim
+export VISUAL=nvim
+export BUN_INSTALL_CACHE_DIR="/Volumes/External/bun-cache"
+
+# Fix file descriptor limit for tmux/Claude Code
+ulimit -n 2147483646
 
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
@@ -48,7 +54,7 @@ unset env
 # zoxide
 eval "$(zoxide init zsh)"
 
-PATH=~/.console-ninja/.bin:$PATH
+
 
 # pnpm
 export PNPM_HOME="/home/syndg/.local/share/pnpm"
@@ -61,3 +67,29 @@ esac
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  
+
+
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
+
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/syndg/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+# End of Docker CLI completions
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+
+
+
+# Atuin
+. "$HOME/.atuin/bin/env"
+eval "$(atuin init zsh)"
+
+# Added by Antigravity
+export PATH="/Users/syndg/.antigravity/antigravity/bin:$PATH"
+
+# opencode
+export PATH=/Users/syndg/.opencode/bin:$PATH
+
+# direnv - project-scoped environment
+eval "$(direnv hook zsh)"

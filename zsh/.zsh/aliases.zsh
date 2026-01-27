@@ -54,3 +54,7 @@ alias np="new_project"
 
 # Clear
 alias c="clear"
+
+# Claude Code - MCP profile launcher (yolo mode by default)
+alias ccyolo="claude --dangerously-skip-permissions"
+alias cc="claude"

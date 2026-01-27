@@ -157,3 +157,228 @@ function connect_wifi() {
   fi
 }
 
+# === PostgreSQL Database Utilities ===
+
+# Function to parse a PostgreSQL connection string
+# Usage: _parse_pg_conn_string "postgresql://user:password@host:port/dbname"
+# Sets: PG_HOST, PG_PORT, PG_USER, PG_PASSWORD, PG_DBNAME
+_parse_pg_conn_string() {
+  local conn_string="$1"
+  if [[ ! "$conn_string" =~ ^postgresql:// ]]; then
+    echo "Error: Invalid PostgreSQL connection string format. Must start with 'postgresql://'" >&2
+    return 1
+  fi
+
+  # Remove "postgresql://" prefix
+  local clean_string="${conn_string#postgresql://}"
+
+  # Extract password if present
+  if [[ "$clean_string" =~ ^([^:]+):([^@]+)@(.+)$ ]]; then
+    PG_USER="${match[1]}"
+    PG_PASSWORD="${match[2]}"
+    local rest="${match[3]}"
+  else
+    # No password, or invalid user:pass format. Try to parse user@host/db
+    if [[ "$clean_string" =~ ^([^@]+)@(.+)$ ]]; then
+      PG_USER="${match[1]}"
+      local rest="${match[2]}"
+    else
+      # Fallback: assume user is "postgres" and rest is host/db
+      PG_USER="postgres"
+      local rest="$clean_string"
+    fi
+    PG_PASSWORD="" # Ensure it's empty
+  fi
+
+  # Extract host, port, dbname
+  if [[ "$rest" =~ ^([^:/]+):([0-9]+)/(.+)$ ]]; then
+    PG_HOST="${match[1]}"
+    PG_PORT="${match[2]}"
+    PG_DBNAME="${match[3]}"
+  elif [[ "$rest" =~ ^([^/]+)/(.+)$ ]]; then # No port specified, assume 5432
+    PG_HOST="${match[1]}"
+    PG_PORT="5432"
+    PG_DBNAME="${match[2]}"
+  else
+    echo "Error: Could not parse host/port/dbname from connection string." >&2
+    return 1
+  fi
+
+  # Handle URL-encoded characters in password (if any, though usually not for simple strings)
+  PG_PASSWORD=$(echo "$PG_PASSWORD" | perl -MURI::Escape -ne 'print uri_unescape($_)')
+
+  # Echo parsed details (for debugging)
+  # echo "Parsed: Host=$PG_HOST, Port=$PG_PORT, User=$PG_USER, DBName=$PG_DBNAME, Password_Set=${PG_PASSWORD:+true}" >&2
+  return 0
+}
+
+# Function to dump a PostgreSQL database
+# Usage: pg_dump_from_conn "postgresql://user:pass@host:port/dbname" [output_file.sql]
+# Default output_file.sql is "dump.sql"
+pg_dump_from_conn() {
+  if [ -z "$1" ]; then
+    echo "Usage: pg_dump_from_conn <source_connection_string> [output_file.sql]"
+    echo "  Example: pg_dump_from_conn \"postgresql://supabase_user:pass@db.proj.supabase.co:5432/postgres\" \"supabase_backup.sql\""
+    return 1
+  fi
+
+  local source_conn="$1"
+  local output_file="${2:-dump.sql}" # Default to dump.sql if not provided
+
+  # Parse source connection string
+  if ! _parse_pg_conn_string "$source_conn"; then
+    return 1
+  fi
+
+  echo "Attempting to dump database '$PG_DBNAME' from '$PG_HOST:$PG_PORT' with user '$PG_USER'..."
+  echo "Output will be saved to: $output_file"
+
+  # Set PGPASSWORD environment variable securely for the command
+  PGPASSWORD="$PG_PASSWORD" pg_dump \
+    -h "$PG_HOST" \
+    -p "$PG_PORT" \
+    -U "$PG_USER" \
+    -d "$PG_DBNAME" \
+    -Fc \
+    -f "$output_file"
+
+  local exit_code=$?
+  if [ $exit_code -eq 0 ]; then
+    echo "Dump successful: $output_file"
+  else
+    echo "Error: pg_dump failed with exit code $exit_code."
+  fi
+  return $exit_code
+}
+
+# Function to restore a PostgreSQL database
+# Usage: pg_restore_to_conn "postgresql://user:pass@host:port/dbname" [input_file.sql] [options]
+# Default input_file.sql is "dump.sql"
+# Default options include -c (clean/drop objects before recreating)
+pg_restore_to_conn() {
+  if [ -z "$1" ]; then
+    echo "Usage: pg_restore_to_conn <target_connection_string> [input_file.sql] [options]"
+    echo "  Example: pg_restore_to_conn \"postgresql://neon_user:pass@ep.neon.tech:5432/main\" \"supabase_backup.sql\""
+    echo "  Options: -c (clean), --no-clean (don't clean, default if not specified is clean)"
+    return 1
+  fi
+
+  local target_conn="$1"
+  local input_file="${2:-dump.sql}" # Default to dump.sql if not provided
+  local restore_options="-c"         # Default to cleaning (dropping objects first)
+
+  # Check for --no-clean option
+  for arg in "${@:3}"; do # Loop through arguments from the 3rd one onwards
+    if [[ "$arg" == "--no-clean" ]]; then
+      restore_options="" # Disable cleaning
+      echo "Note: --no-clean specified. Existing objects will NOT be dropped before restore."
+    elif [[ "$arg" == "-c" ]]; then
+      restore_options="-c" # Explicitly enable clean (useful if overriding previous --no-clean)
+      echo "Note: -c specified. Existing objects WILL be dropped before restore."
+    else
+      echo "Warning: Unknown option '$arg' ignored." >&2
+    fi
+  done
+
+  if [ ! -f "$input_file" ]; then
+    echo "Error: Input dump file '$input_file' not found." >&2
+    return 1
+  fi
+
+  # Parse target connection string
+  if ! _parse_pg_conn_string "$target_conn"; then
+    return 1
+  fi
+
+  echo "Attempting to restore '$input_file' to database '$PG_DBNAME' on '$PG_HOST:$PG_PORT' with user '$PG_USER'..."
+
+  # Set PGPASSWORD environment variable securely for the command
+  PGPASSWORD="$PG_PASSWORD" pg_restore \
+    -h "$PG_HOST" \
+    -p "$PG_PORT" \
+    -U "$PG_USER" \
+    -d "$PG_DBNAME" \
+    $restore_options \
+    "$input_file"
+
+  local exit_code=$?
+  if [ $exit_code -eq 0 ]; then
+    echo "Restore successful!"
+  else
+    echo "Error: pg_restore failed with exit code $exit_code."
+  fi
+  return $exit_code
+}
+
+# redis_url_to_n8n.sh
+
+redis_url_to_n8n() {
+    local url="$1"
+
+    # Default values
+    local proto host port db password ssl
+
+    # Extract protocol
+    proto="${url%%://*}"
+    if [[ "$proto" == "rediss" ]]; then
+        ssl="true"
+    else
+        ssl="false"
+    fi
+
+    # Remove protocol
+    local rest="${url#*://}"
+
+    # Extract password (if any)
+    if [[ "$rest" == :* ]]; then
+        password="${rest%%@*}"
+        password="${password#:}"
+        rest="${rest#*:}"
+        rest="${rest#*@}"
+    else
+        password=""
+        rest="${rest#*@}"
+    fi
+
+    # Extract host and port
+    hostportdb="${url#*://}"
+    hostportdb="${hostportdb#*@}"
+    host="${hostportdb%%:*}"
+    portdb="${hostportdb#*:}"
+    port="${portdb%%/*}"
+    db="${portdb#*/}"
+
+    # If db is missing, default to 0
+    if [[ "$db" == "$portdb" ]]; then
+        db="0"
+    fi
+
+    # Output in n8n format
+    echo "Host: $host"
+    echo "Port: $port"
+    echo "Password: $password"
+    echo "Database: $db"
+    echo "SSL: $ssl"
+}
+
+# Example usage:
+# redis_url_to_n8n "redis://:mypassword@redis.example.com:6380/2"
+
+
+# Optional: Unset PGPASSWORD after operations (if you exported it manually before calling functions)
+# The functions set PGPASSWORD for the command only, so it shouldn't persist globally.
+#
+
+# Function to run n8n in Docker container
+run_n8n() {
+    echo "Starting n8n Docker container..."
+    docker run -it --rm \
+        --name n8n \
+        -p 5678:5678 \
+        -e GENERIC_TIMEZONE="Asia/Kolkata" \
+        -e TZ="Asia/Kolkata" \
+        -e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true \
+        -e N8N_RUNNERS_ENABLED=true \
+        -v n8n_data:/home/node/.n8n \
+        docker.n8n.io/n8nio/n8n
+}
