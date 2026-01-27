@@ -1,0 +1,8 @@
+{
+  "name": "session-capture",
+  "description": "Captures Claude Code sessions (tool calls, user messages) into SQLite for analysis",
+  "version": "1.0.0",
+  "author": {
+    "name": "syndg"
+  }
+}

@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+
+# Generated data in tools
+tools/session-capture/data/
+
+# IDE/editor
+.cursor/

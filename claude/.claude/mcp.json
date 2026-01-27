@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "bunx",
+      "args": ["--bun", "@upstash/context7-mcp"]
+    },
+    "neon": {
+      "type": "http",
+      "url": "https://mcp.neon.tech/mcp",
+      "headers": {
+        "Authorization": "Bearer ${NEON_MCP_TOKEN}"
+      }
+    },
+    "trigger": {
+      "command": "bunx",
+      "args": ["--bun", "trigger.dev@latest", "mcp", "--dev-only"]
+    }
+  }
+}
