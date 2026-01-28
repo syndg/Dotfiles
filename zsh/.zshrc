@@ -93,3 +93,7 @@ export PATH=/Users/syndg/.opencode/bin:$PATH
 
 # direnv - project-scoped environment
 eval "$(direnv hook zsh)"
+
+# wt
+export PATH="$HOME/.claude/tools:$PATH"                                                                                                                                                    
+source "$HOME/.claude/tools/wt-completions.zsh"

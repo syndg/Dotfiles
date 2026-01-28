@@ -11,7 +11,9 @@
     "typescript-lsp@claude-plugins-official": true
   },
   "env": {
-    "ENABLE_TOOL_SEARCH": "true"
+    "ENABLE_TOOL_SEARCH": "true",
+    "CLAUDE_CODE_MONITOR_GHOSTTY_ASKED": "1",
+    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1"
   },
   "permissions": {
     "deny": [
@@ -37,6 +39,15 @@
             "timeout": 5000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ccm hook Notification"
+          }
+        ],
+        "matcher": ""
       }
     ],
     "PreToolUse": [
@@ -79,6 +90,15 @@
             "timeout": 5000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ccm hook PreToolUse"
+          }
+        ],
+        "matcher": ""
       }
     ],
     "PostToolUse": [
@@ -91,6 +111,15 @@
             "timeout": 5000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ccm hook PostToolUse"
+          }
+        ],
+        "matcher": ""
       }
     ],
     "Stop": [
@@ -103,6 +132,15 @@
             "timeout": 5000
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ccm hook Stop"
+          }
+        ],
+        "matcher": ""
       }
     ],
     "UserPromptSubmit": [
@@ -113,6 +151,14 @@
             "type": "command",
             "command": "bun run /Users/syndg/.claude/tools/session-capture/capture.ts user_prompt_submit",
             "timeout": 5000
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ccm hook UserPromptSubmit"
           }
         ]
       }

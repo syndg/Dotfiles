@@ -1,0 +1,617 @@
+#!/usr/bin/env bash
+# Git Worktree Manager for Dotfiles
+# Generated for Ghostty tab workflow
+
+set -e
+
+# === CONFIGURATION ===
+PACKAGE_MANAGER="bun"
+USE_DIRENV=true
+ENV_FILES=()
+POST_SETUP_COMMANDS=()
+# === END CONFIGURATION ===
+
+# Find project root
+find_project_root() {
+    local dir="$PWD"
+    while [[ "$dir" != "/" ]]; do
+        if [[ -d "$dir/.git" ]] || [[ -f "$dir/.git" ]]; then
+            if [[ -f "$dir/.git" ]]; then
+                local gitdir
+                gitdir=$(grep "gitdir:" "$dir/.git" | cut -d' ' -f2)
+                echo "$(dirname "$(dirname "$(dirname "$gitdir")")")"
+                return
+            fi
+            echo "$dir"
+            return
+        fi
+        dir="$(dirname "$dir")"
+    done
+    echo ""
+}
+
+ROOT=$(find_project_root)
+
+if [[ -z "$ROOT" ]]; then
+    echo "Error: Not inside a git repository"
+    exit 1
+fi
+
+WT_DIR="$ROOT/.worktrees"
+
+# Colors
+RED=$'\033[0;31m'
+GREEN=$'\033[0;32m'
+YELLOW=$'\033[0;33m'
+BLUE=$'\033[0;34m'
+NC=$'\033[0m'
+
+usage() {
+    cat << EOF
+${BLUE}Git Worktree Manager${NC}
+
+Usage: wt <command> [options]
+
+Commands:
+  new <branch>... [--base=<ref>]   Create new worktree(s)
+  list, ls                         List all worktrees
+  remove, rm <name>...             Remove worktree(s) [-f force, -b delete branches]
+  open, cd <name>                  Print cd command for worktree
+  setup <name>...                  Setup worktree(s) (env, deps, direnv)
+  spawn <branch>...                Create worktree(s) + open Ghostty tab(s)
+  tab <name>...                    Open Ghostty tab(s) for worktree(s)
+
+Examples:
+  wt new feat/auth feat/api feat/ui     # batch create
+  wt spawn feat/one feat/two feat/three # batch spawn + tabs
+  wt tab feat/auth feat/api             # open multiple tabs
+  wt setup feat/one feat/two            # batch setup
+  wt rm -fb feat/old test/wip           # batch remove + branches
+  wt rm                                 # fzf multi-select
+
+EOF
+}
+
+open_ghostty_tab() {
+    local target_path="$1"
+    osascript << EOF
+tell application "Ghostty"
+    activate
+end tell
+delay 0.3
+tell application "System Events"
+    tell process "Ghostty"
+        keystroke "t" using command down
+        delay 0.5
+        keystroke "cd $target_path && clear"
+        delay 0.1
+        keystroke return
+    end tell
+end tell
+EOF
+}
+
+copy_env_files() {
+    local target="$1"
+    local copied=0
+
+    for env_file in "${ENV_FILES[@]}"; do
+        if [[ -f "$ROOT/$env_file" ]]; then
+            local target_dir
+            target_dir=$(dirname "$target/$env_file")
+            mkdir -p "$target_dir"
+            cp "$ROOT/$env_file" "$target/$env_file"
+            echo "  ${GREEN}✓${NC} $env_file"
+            ((++copied))
+        fi
+    done
+
+    if [[ $copied -gt 0 ]]; then
+        echo "${GREEN}Copied $copied env files${NC}"
+    fi
+}
+
+allow_direnv() {
+    local target="$1"
+    if [[ "$USE_DIRENV" == "true" ]] && command -v direnv &> /dev/null && [[ -f "$target/.envrc" ]]; then
+        echo "${BLUE}Allowing direnv...${NC}"
+        (cd "$target" && direnv allow)
+        echo "${GREEN}✓ direnv allowed${NC}"
+    fi
+}
+
+install_deps() {
+    local target="$1"
+    # Only install if package.json exists
+    if [[ -f "$target/package.json" ]]; then
+        echo "${BLUE}Installing dependencies...${NC}"
+        case "$PACKAGE_MANAGER" in
+            bun)  (cd "$target" && bun install) ;;
+            pnpm) (cd "$target" && pnpm install) ;;
+            yarn) (cd "$target" && yarn install) ;;
+            npm)  (cd "$target" && npm install) ;;
+        esac
+        echo "${GREEN}✓ Dependencies installed${NC}"
+    fi
+}
+
+run_post_setup() {
+    local target="$1"
+    if [[ ${#POST_SETUP_COMMANDS[@]} -gt 0 ]]; then
+        echo "${BLUE}Running post-setup commands...${NC}"
+        for cmd in "${POST_SETUP_COMMANDS[@]}"; do
+            if [[ -n "$cmd" ]]; then
+                echo "  Running: $cmd"
+                (cd "$target" && eval "$cmd")
+            fi
+        done
+        echo "${GREEN}✓ Post-setup complete${NC}"
+    fi
+}
+
+select_base_branch() {
+    local current_branch
+    current_branch=$(git -C "$ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "HEAD")
+
+    if command -v fzf &> /dev/null; then
+        local branches
+        branches=$(git -C "$ROOT" branch --format='%(refname:short)' | sort)
+
+        local options=""
+        local nl=$'\n'
+        [[ $(echo "$branches" | grep -x "main") ]] && options+="main (recommended)${nl}"
+        [[ $(echo "$branches" | grep -x "staging") ]] && options+="staging${nl}"
+        options+="$current_branch (current)${nl}"
+        options+="---${nl}"
+        options+=$(echo "$branches" | grep -vE "^(main|staging|$current_branch)$")
+
+        local selected
+        selected=$(echo "$options" | grep -v "^$" | fzf --height=15 --prompt="Select base branch: ")
+        selected=$(echo "$selected" | sed 's/ (recommended)$//' | sed 's/ (current)$//')
+
+        if [[ -z "$selected" ]] || [[ "$selected" == "---" ]]; then
+            echo ""
+            return
+        fi
+        echo "$selected"
+    else
+        echo "main"
+    fi
+}
+
+_wt_get_worktrees() {
+    [[ -d "$WT_DIR" ]] && find "$WT_DIR" -mindepth 1 -maxdepth 3 \( -name ".git" -o -type f -name ".git" \) 2>/dev/null | xargs -I {} dirname {} | sed "s|$WT_DIR/||" | sort -u
+}
+
+create_single_worktree() {
+    local branch="$1"
+    local base="$2"
+
+    local wt_path="$WT_DIR/$branch"
+
+    if [[ -d "$wt_path" ]]; then
+        echo "${YELLOW}✗ Already exists: $branch${NC}"
+        return 1
+    fi
+
+    local branch_exists
+    branch_exists=$(git -C "$ROOT" branch --list "$branch")
+
+    if [[ -n "$branch_exists" ]]; then
+        git -C "$ROOT" worktree add "$wt_path" "$branch" 2>/dev/null
+    else
+        git -C "$ROOT" worktree add -b "$branch" "$wt_path" "$base" 2>/dev/null
+    fi
+
+    if [[ -d "$wt_path" ]]; then
+        echo "${GREEN}✓ Created: $branch${NC}"
+        return 0
+    else
+        echo "${RED}✗ Failed: $branch${NC}"
+        return 1
+    fi
+}
+
+cmd_new() {
+    local base=""
+    local branches=()
+
+    # Parse flags and arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --base=*)
+                base="${1#--base=}"
+                shift
+                ;;
+            -*)
+                echo "${RED}Unknown option: $1${NC}"
+                exit 1
+                ;;
+            *)
+                branches+=("$1")
+                shift
+                ;;
+        esac
+    done
+
+    if [[ ${#branches[@]} -eq 0 ]]; then
+        echo "${RED}Error: Branch name(s) required${NC}"
+        exit 1
+    fi
+
+    # Select base branch if not provided
+    if [[ -z "$base" ]]; then
+        echo "${BLUE}Select base branch:${NC}"
+        base=$(select_base_branch)
+        if [[ -z "$base" ]]; then
+            echo "${RED}Cancelled${NC}"
+            exit 1
+        fi
+    fi
+
+    echo "${BLUE}Creating ${#branches[@]} worktree(s) from '$base'...${NC}"
+    echo ""
+
+    local created=0
+    for branch in "${branches[@]}"; do
+        if create_single_worktree "$branch" "$base"; then
+            ((++created))
+        fi
+    done
+
+    echo ""
+    echo "${GREEN}Created $created/${#branches[@]} worktree(s)${NC}"
+}
+
+cmd_list() {
+    echo "${BLUE}Worktrees:${NC}"
+    echo ""
+    git -C "$ROOT" worktree list
+    echo ""
+}
+
+remove_single_worktree() {
+    local name="$1"
+    local force="$2"
+    local delete_branch="$3"
+
+    local wt_path="$WT_DIR/$name"
+
+    if [[ ! -d "$wt_path" ]]; then
+        echo "${RED}✗ Worktree not found: $name${NC}"
+        return 1
+    fi
+
+    # Check for uncommitted changes
+    if [[ "$force" != "true" ]]; then
+        local changes
+        changes=$(git -C "$wt_path" status --porcelain 2>/dev/null)
+        if [[ -n "$changes" ]]; then
+            echo "${YELLOW}Warning: '$name' has uncommitted changes${NC}"
+            git -C "$wt_path" status --short
+            read -r -p "Remove anyway? [y/N]: " response
+            [[ ! "$response" =~ ^[Yy]$ ]] && return 0
+        fi
+    fi
+
+    git -C "$ROOT" worktree remove "$wt_path" --force 2>/dev/null
+    echo "${GREEN}✓ Removed worktree: $name${NC}"
+
+    # Delete branch if requested
+    if [[ "$delete_branch" == "true" ]]; then
+        git -C "$ROOT" branch -D "$name" 2>/dev/null && \
+            echo "${GREEN}✓ Deleted branch: $name${NC}" || true
+    fi
+}
+
+cmd_remove() {
+    local force=false
+    local delete_branches=false
+    local names=()
+
+    # Parse flags and arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -f|--force)
+                force=true
+                shift
+                ;;
+            -b|--branches)
+                delete_branches=true
+                shift
+                ;;
+            -fb|-bf)
+                force=true
+                delete_branches=true
+                shift
+                ;;
+            -*)
+                echo "${RED}Unknown option: $1${NC}"
+                exit 1
+                ;;
+            *)
+                names+=("$1")
+                shift
+                ;;
+        esac
+    done
+
+    # If no names provided, use fzf for multi-select
+    if [[ ${#names[@]} -eq 0 ]]; then
+        if command -v fzf &> /dev/null; then
+            local wts
+            wts=$(_wt_get_worktrees 2>/dev/null)
+            if [[ -z "$wts" ]]; then
+                echo "${YELLOW}No worktrees found${NC}"
+                exit 0
+            fi
+            # Multi-select with fzf
+            mapfile -t names < <(echo "$wts" | fzf --multi --height=15 --prompt="Select worktree(s) to remove: ")
+            [[ ${#names[@]} -eq 0 ]] && exit 0
+        else
+            echo "${RED}Error: Worktree name(s) required${NC}"
+            exit 1
+        fi
+    fi
+
+    # Confirm batch removal if multiple and not forced
+    if [[ ${#names[@]} -gt 1 ]] && [[ "$force" != "true" ]]; then
+        echo "${BLUE}Will remove ${#names[@]} worktrees:${NC}"
+        for name in "${names[@]}"; do
+            echo "  - $name"
+        done
+        read -r -p "Continue? [y/N]: " response
+        [[ ! "$response" =~ ^[Yy]$ ]] && exit 0
+    fi
+
+    # Ask about branches once for batch
+    if [[ "$delete_branches" != "true" ]] && [[ ${#names[@]} -gt 0 ]]; then
+        read -r -p "Also delete branches? [y/N]: " response
+        [[ "$response" =~ ^[Yy]$ ]] && delete_branches=true
+    fi
+
+    # Remove each worktree
+    local removed=0
+    for name in "${names[@]}"; do
+        if remove_single_worktree "$name" "$force" "$delete_branches"; then
+            ((++removed))
+        fi
+    done
+
+    echo ""
+    echo "${GREEN}Removed $removed worktree(s)${NC}"
+}
+
+cmd_open() {
+    local name="$1"
+    local wt_path="$WT_DIR/$name"
+
+    if [[ -z "$name" ]]; then
+        echo "${RED}Error: Worktree name required${NC}"
+        exit 1
+    fi
+
+    if [[ ! -d "$wt_path" ]]; then
+        echo "${RED}Error: Worktree not found at $wt_path${NC}"
+        exit 1
+    fi
+
+    echo "cd $wt_path"
+}
+
+setup_single_worktree() {
+    local target="$1"
+
+    if [[ ! -d "$target" ]]; then
+        echo "${RED}✗ Not found: $target${NC}"
+        return 1
+    fi
+
+    echo "${BLUE}Setting up: $target${NC}"
+    copy_env_files "$target"
+    allow_direnv "$target"
+    install_deps "$target"
+    run_post_setup "$target"
+    echo "${GREEN}✓ Setup complete: $(basename "$target")${NC}"
+}
+
+cmd_setup() {
+    local names=()
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -*)
+                echo "${RED}Unknown option: $1${NC}"
+                exit 1
+                ;;
+            *)
+                names+=("$1")
+                shift
+                ;;
+        esac
+    done
+
+    # If no names provided, check if we're in a worktree or use fzf
+    if [[ ${#names[@]} -eq 0 ]]; then
+        if [[ "$PWD" == "$WT_DIR"* ]]; then
+            # We're inside a worktree, use current directory
+            setup_single_worktree "$PWD"
+            return
+        elif command -v fzf &> /dev/null; then
+            local wts
+            wts=$(_wt_get_worktrees 2>/dev/null)
+            if [[ -z "$wts" ]]; then
+                echo "${YELLOW}No worktrees found${NC}"
+                exit 0
+            fi
+            mapfile -t names < <(echo "$wts" | fzf --multi --height=15 --prompt="Select worktree(s) to setup: ")
+            [[ ${#names[@]} -eq 0 ]] && exit 0
+        else
+            echo "${RED}Error: Specify worktree name(s) or run from within a worktree${NC}"
+            exit 1
+        fi
+    fi
+
+    echo "${BLUE}Setting up ${#names[@]} worktree(s)...${NC}"
+    echo ""
+
+    local setup_count=0
+    for name in "${names[@]}"; do
+        if setup_single_worktree "$WT_DIR/$name"; then
+            ((++setup_count))
+        fi
+        echo ""
+    done
+
+    echo "${GREEN}Setup $setup_count/${#names[@]} worktree(s)${NC}"
+}
+
+spawn_single_worktree() {
+    local branch="$1"
+    local wt_path="$WT_DIR/$branch"
+
+    if [[ ! -d "$wt_path" ]]; then
+        echo "${BLUE}Creating worktree '$branch'...${NC}"
+        git -C "$ROOT" worktree add -b "$branch" "$wt_path" staging 2>/dev/null || \
+        git -C "$ROOT" worktree add -b "$branch" "$wt_path" main 2>/dev/null || \
+        git -C "$ROOT" worktree add -b "$branch" "$wt_path" HEAD
+
+        if [[ ! -d "$wt_path" ]]; then
+            echo "${RED}✗ Failed to create: $branch${NC}"
+            return 1
+        fi
+
+        echo "${GREEN}✓ Created: $branch${NC}"
+        copy_env_files "$wt_path"
+        allow_direnv "$wt_path"
+        install_deps "$wt_path"
+        run_post_setup "$wt_path"
+    else
+        echo "${YELLOW}Worktree exists: $branch${NC}"
+    fi
+
+    echo "$wt_path"
+}
+
+cmd_spawn() {
+    local branches=()
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -*)
+                echo "${RED}Unknown option: $1${NC}"
+                exit 1
+                ;;
+            *)
+                branches+=("$1")
+                shift
+                ;;
+        esac
+    done
+
+    if [[ ${#branches[@]} -eq 0 ]]; then
+        echo "${RED}Error: Branch name(s) required${NC}"
+        exit 1
+    fi
+
+    echo "${BLUE}Spawning ${#branches[@]} worktree(s)...${NC}"
+    echo ""
+
+    # First pass: create all worktrees
+    local wt_paths=()
+    local created=0
+    for branch in "${branches[@]}"; do
+        local wt_path
+        wt_path=$(spawn_single_worktree "$branch")
+        if [[ -d "$WT_DIR/$branch" ]]; then
+            wt_paths+=("$WT_DIR/$branch")
+            ((++created))
+        fi
+        echo ""
+    done
+
+    # Second pass: open all Ghostty tabs
+    if [[ ${#wt_paths[@]} -gt 0 ]]; then
+        echo "${BLUE}Opening ${#wt_paths[@]} Ghostty tab(s)...${NC}"
+        for wt_path in "${wt_paths[@]}"; do
+            open_ghostty_tab "$wt_path"
+            sleep 0.5
+        done
+    fi
+
+    echo ""
+    echo "${GREEN}Spawned $created worktree(s), opened ${#wt_paths[@]} tab(s)${NC}"
+    echo "Run ${YELLOW}claude${NC} in each tab to start sessions"
+}
+
+cmd_tab() {
+    local names=()
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -*)
+                echo "${RED}Unknown option: $1${NC}"
+                exit 1
+                ;;
+            *)
+                names+=("$1")
+                shift
+                ;;
+        esac
+    done
+
+    # If no names provided, use fzf for multi-select
+    if [[ ${#names[@]} -eq 0 ]]; then
+        if command -v fzf &> /dev/null; then
+            local wts
+            wts=$(_wt_get_worktrees 2>/dev/null)
+            if [[ -z "$wts" ]]; then
+                echo "${YELLOW}No worktrees found${NC}"
+                exit 0
+            fi
+            mapfile -t names < <(echo "$wts" | fzf --multi --height=15 --prompt="Select worktree(s): ")
+            [[ ${#names[@]} -eq 0 ]] && exit 0
+        else
+            echo "${RED}Error: Worktree name(s) required${NC}"
+            exit 1
+        fi
+    fi
+
+    echo "${BLUE}Opening ${#names[@]} Ghostty tab(s)...${NC}"
+
+    local opened=0
+    for name in "${names[@]}"; do
+        local wt_path="$WT_DIR/$name"
+        if [[ ! -d "$wt_path" ]]; then
+            echo "${RED}✗ Not found: $name${NC}"
+            continue
+        fi
+        open_ghostty_tab "$wt_path"
+        echo "${GREEN}✓ Opened: $name${NC}"
+        ((++opened))
+        sleep 0.5
+    done
+
+    echo ""
+    echo "${GREEN}Opened $opened tab(s)${NC}"
+}
+
+# Main
+case "${1:-}" in
+    new)            shift; cmd_new "$@" ;;
+    list|ls)        cmd_list ;;
+    remove|rm)      shift; cmd_remove "$@" ;;
+    open|cd)        cmd_open "$2" ;;
+    setup)          shift; cmd_setup "$@" ;;
+    spawn)          shift; cmd_spawn "$@" ;;
+    tab)            shift; cmd_tab "$@" ;;
+    -h|--help|help|"") usage ;;
+    *)
+        echo "${RED}Unknown command: $1${NC}"
+        usage
+        exit 1
+        ;;
+esac
