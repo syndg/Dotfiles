@@ -89,7 +89,32 @@ A CLI tool for managing git worktrees, designed for parallel AI coding sessions.
 
 ### Quick Start
 
-1. **Copy the global completions to your home directory:**
+#### Option 1: Automated (Recommended)
+
+Copy the commands folder to your Claude Code config, then run:
+
+```bash
+# Copy commands to your Claude Code config
+cp -r claude/.claude/commands ~/.claude/
+```
+
+Then in Claude Code:
+
+```
+/setup-wt
+```
+
+This installs global completions and updates your `.zshrc`. After restarting your terminal, navigate to any git repo and run:
+
+```
+/install-wt
+```
+
+This creates a project-specific `wt` script with your config (package manager, env files, etc).
+
+#### Option 2: Manual
+
+1. **Copy the global completions:**
 
 ```bash
 mkdir -p ~/.claude/tools
@@ -99,16 +124,11 @@ cp claude/.claude/tools/wt-completions.zsh ~/.claude/tools/
 2. **Add to your `.zshrc`:**
 
 ```bash
-source ~/.claude/tools/wt-completions.zsh
+echo 'source "$HOME/.claude/tools/wt-completions.zsh"' >> ~/.zshrc
+source ~/.zshrc
 ```
 
-3. **Install in any git repo** - open Claude Code and run:
-
-```
-/install-wt
-```
-
-This scaffolds a project-specific `wt` script with your config (package manager, env files, etc).
+3. **In any git repo**, copy the `install-wt.md` command and run `/install-wt` in Claude Code to scaffold the project-specific `wt` script.
 
 ### Usage
 
