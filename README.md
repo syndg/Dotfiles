@@ -102,14 +102,13 @@ cp claude/.claude/tools/wt-completions.zsh ~/.claude/tools/
 source ~/.claude/tools/wt-completions.zsh
 ```
 
-3. **Create a project-specific `wt` script** in any git repo:
+3. **Install in any git repo** - open Claude Code and run:
 
-```bash
-mkdir -p .claude/tools
-# Copy the template from claude/.claude/commands/install-wt.md
-# Or use Claude Code: /install-wt
-chmod +x .claude/tools/wt
 ```
+/install-wt
+```
+
+This scaffolds a project-specific `wt` script with your config (package manager, env files, etc).
 
 ### Usage
 
