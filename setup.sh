@@ -86,12 +86,8 @@ setup_zsh() {
         safe_clone "https://github.com/zsh-users/zsh-autosuggestions" "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
         safe_clone "https://github.com/zsh-users/zsh-syntax-highlighting" "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
 
-        # Pure theme
-        if [ ! -d "$ZSH_CUSTOM/pure" ]; then
-            safe_clone "https://github.com/sindresorhus/pure" "$ZSH_CUSTOM/pure"
-            ln -sf "$ZSH_CUSTOM/pure/pure.zsh-theme" "$ZSH_CUSTOM/"
-            ln -sf "$ZSH_CUSTOM/pure/async.zsh" "$ZSH_CUSTOM/"
-        fi
+        # Pure prompt (loaded via fpath in .zshrc, not as OMZ theme)
+        safe_clone "https://github.com/sindresorhus/pure" "$ZSH_CUSTOM/pure"
 
         chsh -s zsh
     else
