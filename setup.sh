@@ -104,6 +104,27 @@ setup_zsh() {
 }
 
 # ============================================
+# Termux font setup (Nerd Font for icons/symbols)
+# ============================================
+
+setup_termux_font() {
+    if [ "$PLATFORM" != "termux" ]; then
+        return
+    fi
+
+    local font_url="https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/JetBrainsMono/Ligatures/Regular/JetBrainsMonoNerdFont-Regular.ttf"
+    local font_dest="$HOME/.termux/font.ttf"
+
+    if [ -f "$font_dest" ]; then
+        log "Updating Termux font to JetBrainsMono Nerd Font..."
+    else
+        log "Installing JetBrainsMono Nerd Font..."
+    fi
+
+    curl -fsSL "$font_url" -o "$font_dest" && log "Font installed!" || warn "Failed to download font"
+}
+
+# ============================================
 # Neovim setup (Termux only - macOS/Linux use LunarVim)
 # ============================================
 
@@ -160,9 +181,11 @@ main() {
     setup_zsh
     setup_nvim
     stow_packages
+    setup_termux_font
 
     echo
     log "Setup complete!"
+    [ "$PLATFORM" = "termux" ] && log "Run 'termux-reload-settings' to apply font/colors"
     log "Restart your shell or run: source ~/.zshrc"
 }
 
