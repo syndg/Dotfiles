@@ -19,9 +19,14 @@ fi
 if [ "$_PLATFORM" = "termux" ]; then
     # Termux: Oh-My-Zsh (lighter)
     export ZSH="$HOME/.oh-my-zsh"
-    ZSH_THEME="pure"
+    ZSH_THEME=""  # Disable OMZ themes, we'll use Pure manually
     plugins=(git zsh-autosuggestions zsh-syntax-highlighting)
     [ -s "$ZSH/oh-my-zsh.sh" ] && source "$ZSH/oh-my-zsh.sh"
+
+    # Load Pure prompt (not a standard OMZ theme)
+    fpath+=("$HOME/.oh-my-zsh/custom/pure")
+    autoload -U promptinit; promptinit
+    prompt pure
 else
     # macOS/Linux: Prezto
     if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
