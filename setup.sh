@@ -27,15 +27,38 @@ fi
 
 log "Detected platform: $PLATFORM"
 
-# Clone only if directory doesn't exist
+# Clone repo (with optional recursive flag for submodules)
 safe_clone() {
     local repo="$1"
     local dest="$2"
+    local recursive="${3:-false}"
+
     if [ -d "$dest" ]; then
-        warn "$dest already exists, skipping"
+        warn "$dest already exists, updating..."
+        cd "$dest"
+        git pull --quiet
+        if [ "$recursive" = "true" ]; then
+            git submodule sync --recursive --quiet
+            git submodule update --init --recursive --quiet
+        fi
+        cd - >/dev/null
     else
         log "Cloning $repo..."
-        git clone --depth 1 "$repo" "$dest"
+        if [ "$recursive" = "true" ]; then
+            git clone --recursive "$repo" "$dest"
+        else
+            git clone --depth 1 "$repo" "$dest"
+        fi
+    fi
+}
+
+# Backup existing file/symlink before replacing
+backup_if_exists() {
+    local target="$1"
+    if [ -e "$target" ] || [ -L "$target" ]; then
+        local backup="${target}.backup.$(date +%Y%m%d%H%M%S)"
+        warn "Backing up $target to $backup"
+        mv "$target" "$backup"
     fi
 }
 
@@ -61,10 +84,10 @@ install_packages() {
         linux)
             if command -v apt &>/dev/null; then
                 log "Installing packages via apt..."
-                sudo apt update && sudo apt install -y stow fzf zoxide neovim
+                sudo apt update && sudo apt install -y git zsh stow fzf zoxide neovim curl
             elif command -v pacman &>/dev/null; then
                 log "Installing packages via pacman..."
-                sudo pacman -Syu --noconfirm stow fzf zoxide neovim
+                sudo pacman -Syu --noconfirm git zsh stow fzf zoxide neovim curl
             else
                 warn "Unknown package manager, skipping package installation"
             fi
@@ -91,15 +114,27 @@ setup_zsh() {
 
         chsh -s zsh
     else
-        # macOS/Linux uses Prezto
+        # macOS/Linux uses Prezto (requires recursive clone for submodules)
         log "Setting up Prezto..."
-        safe_clone "https://github.com/sorin-ionescu/prezto.git" "${ZDOTDIR:-$HOME}/.zprezto"
+        safe_clone "https://github.com/sorin-ionescu/prezto.git" "${ZDOTDIR:-$HOME}/.zprezto" "true"
 
-        # Create Prezto symlinks if they don't exist
+        # Create Prezto symlinks, backing up existing files
+        log "Linking Prezto config files..."
         for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/z*; do
-            target="${ZDOTDIR:-$HOME}/.${rcfile:t}"
-            [ -e "$target" ] || ln -s "$rcfile" "$target"
+            target="${ZDOTDIR:-$HOME}/.${rcfile##*/}"
+            if [ -L "$target" ] && [ "$(readlink "$target")" = "$rcfile" ]; then
+                # Already correctly linked
+                continue
+            fi
+            backup_if_exists "$target"
+            ln -s "$rcfile" "$target"
         done
+
+        # Set zsh as default shell if not already
+        if [ "$SHELL" != "$(command -v zsh)" ]; then
+            log "Setting zsh as default shell..."
+            chsh -s "$(command -v zsh)" || warn "Could not change shell (run manually: chsh -s $(command -v zsh))"
+        fi
     fi
 }
 
@@ -157,17 +192,20 @@ stow_packages() {
             platform_pkgs="claude ghostty kitty lvim tmux"
             ;;
         linux)
-            platform_pkgs="claude kitty lvim tmux"
+            platform_pkgs="claude lvim tmux"
             ;;
     esac
 
-    # Backup and stow
+    # Stow with --adopt to handle existing files (adopts them into repo, then restow to overwrite)
     for pkg in $common $platform_pkgs; do
         if [ -d "$pkg" ]; then
             log "Stowing $pkg..."
-            stow -R "$pkg" 2>/dev/null || warn "Could not stow $pkg (conflicts?)"
+            stow --adopt -R "$pkg" 2>/dev/null || warn "Could not stow $pkg (conflicts?)"
         fi
     done
+
+    # Reset any adopted files to repo version
+    git checkout -- . 2>/dev/null || true
 }
 
 # ============================================
