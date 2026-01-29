@@ -52,16 +52,6 @@ safe_clone() {
     fi
 }
 
-# Backup existing file/symlink before replacing
-backup_if_exists() {
-    local target="$1"
-    if [ -e "$target" ] || [ -L "$target" ]; then
-        local backup="${target}.backup.$(date +%Y%m%d%H%M%S)"
-        warn "Backing up $target to $backup"
-        mv "$target" "$backup"
-    fi
-}
-
 # ============================================
 # Platform-specific package installation
 # ============================================
@@ -118,23 +108,11 @@ setup_zsh() {
         log "Setting up Prezto..."
         safe_clone "https://github.com/sorin-ionescu/prezto.git" "${ZDOTDIR:-$HOME}/.zprezto" "true"
 
-        # Create Prezto symlinks, backing up existing files
-        log "Linking Prezto config files..."
-        for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/z*; do
-            target="${ZDOTDIR:-$HOME}/.${rcfile##*/}"
-            if [ -L "$target" ] && [ "$(readlink "$target")" = "$rcfile" ]; then
-                # Already correctly linked
-                continue
-            fi
-            backup_if_exists "$target"
-            ln -s "$rcfile" "$target"
-        done
+        # zsh-syntax-highlighting (sourced from .zshrc)
+        mkdir -p "$HOME/.zsh"
+        safe_clone "https://github.com/zsh-users/zsh-syntax-highlighting" "$HOME/.zsh/synhigh"
 
-        # Set zsh as default shell if not already
-        if [ "$SHELL" != "$(command -v zsh)" ]; then
-            log "Setting zsh as default shell..."
-            chsh -s "$(command -v zsh)" || warn "Could not change shell (run manually: chsh -s $(command -v zsh))"
-        fi
+        # Note: We don't create Prezto default symlinks here - stow handles our custom configs
     fi
 }
 
