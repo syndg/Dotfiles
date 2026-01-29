@@ -27,15 +27,28 @@ fi
 
 log "Detected platform: $PLATFORM"
 
-# Clone only if directory doesn't exist
+# Clone repo (with optional recursive flag for submodules)
 safe_clone() {
     local repo="$1"
     local dest="$2"
+    local recursive="${3:-false}"
+
     if [ -d "$dest" ]; then
-        warn "$dest already exists, skipping"
+        warn "$dest already exists, updating..."
+        cd "$dest"
+        git pull --quiet
+        if [ "$recursive" = "true" ]; then
+            git submodule sync --recursive --quiet
+            git submodule update --init --recursive --quiet
+        fi
+        cd - >/dev/null
     else
         log "Cloning $repo..."
-        git clone --depth 1 "$repo" "$dest"
+        if [ "$recursive" = "true" ]; then
+            git clone --recursive "$repo" "$dest"
+        else
+            git clone --depth 1 "$repo" "$dest"
+        fi
     fi
 }
 
@@ -91,15 +104,15 @@ setup_zsh() {
 
         chsh -s zsh
     else
-        # macOS/Linux uses Prezto
+        # macOS/Linux uses Prezto (requires recursive clone for submodules)
         log "Setting up Prezto..."
-        safe_clone "https://github.com/sorin-ionescu/prezto.git" "${ZDOTDIR:-$HOME}/.zprezto"
+        safe_clone "https://github.com/sorin-ionescu/prezto.git" "${ZDOTDIR:-$HOME}/.zprezto" "true"
 
-        # Create Prezto symlinks if they don't exist
-        for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/z*; do
-            target="${ZDOTDIR:-$HOME}/.${rcfile:t}"
-            [ -e "$target" ] || ln -s "$rcfile" "$target"
-        done
+        # zsh-syntax-highlighting (sourced from .zshrc)
+        mkdir -p "$HOME/.zsh"
+        safe_clone "https://github.com/zsh-users/zsh-syntax-highlighting" "$HOME/.zsh/synhigh"
+
+        # Note: We don't create Prezto default symlinks here - stow handles our custom configs
     fi
 }
 
