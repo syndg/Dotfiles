@@ -46,9 +46,15 @@ alias lg="lazygit"
 alias tx="tmux"
 alias txa="tmux attach -t"
 
+# Hetzner server
+alias hetzner='mosh --ssh="ssh -i ~/.ssh/hetzner" syndg@95.217.159.10'
+
 # Claude Code
 alias cc="claude"
 alias ccyolo="claude --dangerously-skip-permissions"
+
+# Skills CLI (custom fork)
+alias skills="bun run /Volumes/External/Coding/skills/src/cli.ts"
 
 # ============================================
 # Platform-specific aliases
