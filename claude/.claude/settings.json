@@ -1,20 +1,10 @@
 {
-  "statusLine": {
-    "type": "command",
-    "command": "/bin/bash /Users/syndg/.claude/statusline-enhanced.sh"
-  },
-  "includeCoAuthoredBy": false,
-  "gitAttribution": false,
-  "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true,
-    "context7@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true
-  },
   "env": {
     "ENABLE_TOOL_SEARCH": "true",
     "CLAUDE_CODE_MONITOR_GHOSTTY_ASKED": "1",
     "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1"
   },
+  "includeCoAuthoredBy": false,
   "permissions": {
     "deny": [
       "Bash(rm -rf /*:*)",
@@ -28,6 +18,7 @@
       "Bash(git reset --hard:*)"
     ]
   },
+  "model": "claude-opus-4-5",
   "hooks": {
     "Notification": [
       {
@@ -41,13 +32,13 @@
         ]
       },
       {
+        "matcher": "",
         "hooks": [
           {
             "type": "command",
             "command": "ccm hook Notification"
           }
-        ],
-        "matcher": ""
+        ]
       }
     ],
     "PreToolUse": [
@@ -92,13 +83,13 @@
         ]
       },
       {
+        "matcher": "",
         "hooks": [
           {
             "type": "command",
             "command": "ccm hook PreToolUse"
           }
-        ],
-        "matcher": ""
+        ]
       }
     ],
     "PostToolUse": [
@@ -113,13 +104,13 @@
         ]
       },
       {
+        "matcher": "",
         "hooks": [
           {
             "type": "command",
             "command": "ccm hook PostToolUse"
           }
-        ],
-        "matcher": ""
+        ]
       }
     ],
     "Stop": [
@@ -134,13 +125,13 @@
         ]
       },
       {
+        "matcher": "",
         "hooks": [
           {
             "type": "command",
             "command": "ccm hook Stop"
           }
-        ],
-        "matcher": ""
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -163,5 +154,16 @@
         ]
       }
     ]
-  }
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "/bin/bash /Users/syndg/.claude/statusline-enhanced.sh"
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "gitAttribution": false,
+  "effortLevel": "medium"
 }

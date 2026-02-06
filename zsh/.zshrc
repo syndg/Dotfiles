@@ -3,6 +3,9 @@ export EDITOR=nvim
 export VISUAL=nvim
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
+# Secrets (API keys, tokens - not in git)
+[ -f "$HOME/.secrets" ] && source "$HOME/.secrets"
+
 # Detect platform
 if [ -n "$TERMUX_VERSION" ]; then
     _PLATFORM="termux"

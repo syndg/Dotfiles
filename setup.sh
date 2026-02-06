@@ -74,15 +74,35 @@ install_packages() {
         linux)
             if command -v apt &>/dev/null; then
                 log "Installing packages via apt..."
-                sudo apt update && sudo apt install -y git zsh stow fzf zoxide neovim curl
+                sudo apt update && sudo apt install -y git zsh stow zoxide neovim curl
+                # Remove old system fzf if present (apt version is outdated)
+                dpkg -l fzf &>/dev/null && sudo apt remove -y fzf 2>/dev/null || true
             elif command -v pacman &>/dev/null; then
                 log "Installing packages via pacman..."
-                sudo pacman -Syu --noconfirm git zsh stow fzf zoxide neovim curl
+                sudo pacman -Syu --noconfirm git zsh stow zoxide neovim curl
+                # Remove old system fzf if present
+                pacman -Q fzf &>/dev/null && sudo pacman -R --noconfirm fzf 2>/dev/null || true
             else
                 warn "Unknown package manager, skipping package installation"
             fi
             ;;
     esac
+}
+
+# ============================================
+# fzf setup (via git for latest version)
+# ============================================
+
+setup_fzf() {
+    if [ -d "$HOME/.fzf" ]; then
+        log "Updating fzf..."
+        cd "$HOME/.fzf" && git pull --quiet && ./install --all --no-update-rc
+        cd - >/dev/null
+    else
+        log "Installing fzf via git..."
+        git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME/.fzf"
+        "$HOME/.fzf/install" --all --no-update-rc
+    fi
 }
 
 # ============================================
@@ -194,6 +214,7 @@ main() {
     log "Starting dotfiles setup..."
 
     install_packages
+    [ "$PLATFORM" != "termux" ] && setup_fzf  # Termux uses pkg fzf (up-to-date)
     setup_zsh
     setup_nvim
     stow_packages
