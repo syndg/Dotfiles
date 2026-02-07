@@ -43,6 +43,15 @@
     ],
     "PreToolUse": [
       {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "but claude pre-tool"
+          }
+        ]
+      },
+      {
         "matcher": "Bash",
         "hooks": [
           {
@@ -94,6 +103,15 @@
     ],
     "PostToolUse": [
       {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "but claude post-tool"
+          }
+        ]
+      },
+      {
         "matcher": ".*",
         "hooks": [
           {
@@ -114,6 +132,15 @@
       }
     ],
     "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "but claude stop"
+          }
+        ]
+      },
       {
         "matcher": ".*",
         "hooks": [
@@ -164,6 +191,5 @@
     "context7@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true
   },
-  "gitAttribution": false,
-  "effortLevel": "medium"
+  "gitAttribution": false
 }

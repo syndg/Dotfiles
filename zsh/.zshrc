@@ -132,3 +132,6 @@ if [ "$_PLATFORM" != "termux" ]; then
     [ -d "$HOME/.claude/tools" ] && export PATH="$HOME/.claude/tools:$PATH"
     [ -f "$HOME/.claude/tools/wt-completions.zsh" ] && source "$HOME/.claude/tools/wt-completions.zsh"
 fi
+
+# Added by GitButler installer
+eval "$(but completions zsh)"
