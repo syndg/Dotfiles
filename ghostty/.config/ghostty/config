@@ -1,4 +1,5 @@
 theme = Material Ocean
+background = #141414
 
 # split
 keybind = cmd+\=new_split:right
