@@ -52,31 +52,11 @@
         ]
       },
       {
-        "matcher": "Bash",
+        "matcher": "Bash|Edit|Write",
         "hooks": [
           {
             "type": "command",
-            "command": "bun run /Users/syndg/.claude/hooks/damage-control/bash-tool-damage-control.ts",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun run /Users/syndg/.claude/hooks/damage-control/edit-tool-damage-control.ts",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun run /Users/syndg/.claude/hooks/damage-control/write-tool-damage-control.ts",
+            "command": "bun run /Users/syndg/.claude/hooks/damage-control/damage-control.ts",
             "timeout": 5000
           }
         ]
