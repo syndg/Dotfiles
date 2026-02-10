@@ -15,7 +15,7 @@ keybind = cmd+e=equalize_splits
 window-padding-x = 10
 font-size = 15
 
-background-opacity = 0.9
+background-opacity = 0.95
 background-blur = true
 
 keybind = cmd+shift+right=next_tab
