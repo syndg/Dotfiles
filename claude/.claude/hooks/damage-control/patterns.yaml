@@ -373,6 +373,53 @@ bashToolPatterns:
     reason: SQL DELETE with specific ID
     ask: true
 
+  # ---------------------------------------------------------------------------
+  # PRISMA DESTRUCTIVE OPERATIONS
+  # ---------------------------------------------------------------------------
+  # Block: --accept-data-loss bypasses Prisma's safety warnings
+  - pattern: '\bprisma\s+db\s+push\s+.*--accept-data-loss'
+    reason: prisma db push --accept-data-loss (BYPASSES data loss protection)
+
+  - pattern: '\bprisma\s+db\s+push\s+.*--force-reset'
+    reason: prisma db push --force-reset (WIPES database)
+
+  - pattern: '\bprisma\s+migrate\s+reset\b'
+    reason: prisma migrate reset (DROPS all tables and reseeds)
+
+  - pattern: '\bprisma\s+db\s+execute\s+.*DROP'
+    reason: prisma db execute with DROP statement
+
+  - pattern: '\bprisma\s+db\s+execute\s+.*TRUNCATE'
+    reason: prisma db execute with TRUNCATE statement
+
+  # ---------------------------------------------------------------------------
+  # PRISMA OPERATIONS REQUIRING CONFIRMATION (ask: true)
+  # ---------------------------------------------------------------------------
+  - pattern: '\bprisma\s+db\s+push\b(?!.*--accept-data-loss)'
+    reason: prisma db push may cause data loss on production databases
+    ask: true
+
+  - pattern: '\bprisma\s+migrate\s+dev\b'
+    reason: prisma migrate dev modifies database schema
+    ask: true
+
+  - pattern: '\bbunx\s+prisma\s+db\s+push\s+.*--accept-data-loss'
+    reason: prisma db push --accept-data-loss (BYPASSES data loss protection)
+
+  - pattern: '\bbunx\s+prisma\s+migrate\s+reset\b'
+    reason: prisma migrate reset (DROPS all tables)
+
+  - pattern: '\bbunx\s+prisma\s+db\s+push\s+.*--force-reset'
+    reason: prisma db push --force-reset (WIPES database)
+
+  - pattern: '\bbunx\s+prisma\s+db\s+push\b(?!.*--accept-data-loss)'
+    reason: prisma db push may cause data loss on production databases
+    ask: true
+
+  - pattern: '\bbunx\s+prisma\s+migrate\s+dev\b'
+    reason: prisma migrate dev modifies database schema
+    ask: true
+
 # ---------------------------------------------------------------------------
 # ZERO ACCESS PATHS - No read, write, or any access allowed
 # ---------------------------------------------------------------------------
