@@ -43,15 +43,6 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Edit|MultiEdit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "but claude pre-tool"
-          }
-        ]
-      },
-      {
         "matcher": "Bash|Edit|Write",
         "hooks": [
           {
@@ -83,15 +74,6 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Edit|MultiEdit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "but claude post-tool"
-          }
-        ]
-      },
-      {
         "matcher": ".*",
         "hooks": [
           {
@@ -112,15 +94,6 @@
       }
     ],
     "Stop": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "but claude stop"
-          }
-        ]
-      },
       {
         "matcher": ".*",
         "hooks": [
