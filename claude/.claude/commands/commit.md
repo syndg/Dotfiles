@@ -1,53 +1,48 @@
 ---
-description: Generate and create a git commit with smart message
-allowed-tools: Bash(git:*), AskUserQuestion
+description: Review and commit changes with suggested branch names and messages
+allowed-tools: Bash(but:*), Bash(git log:*), Bash(git diff:*), AskUserQuestion, Skill
 ---
 
-# Smart Commit
+# Smart Commit (GitButler)
 
-Generate a commit message and create the commit.
+Review uncommitted changes, suggest branch + commit messages, execute on approval.
+
+## Prerequisites
+
+Invoke the `gitbutler` skill first for command reference and workspace model context.
 
 ## Process
 
-1. Run in parallel:
-
-   - `git status` (no -uall flag)
-   - `git diff --cached` (staged changes)
-   - `git diff` (unstaged changes)
-   - `git log --oneline -5` (recent commit style)
-
-2. If no staged changes, ask user what to stage:
-
-   - "All changes"
-   - "Select files" (then list modified files as options)
-
-3. Analyze changes and draft commit message:
-
-   - Follow conventional commits if repo uses them
-   - Otherwise match existing commit style
-   - Focus on "why" not "what"
-   - 1-2 sentences max
-
-4. Present commit message to user with options:
-
-   - "Commit" (proceed)
-   - "Edit" (let user modify)
-   - "Cancel"
-
-5. If approved, run:
-
+1. Get workspace state:
    ```bash
-   git commit -m "$(cat <<'EOF'
-   <message>
-   EOF
-   )"
+   but status --json -f
    ```
 
-6. Show `git status` after commit to confirm success.
+2. If changes span multiple logical concerns, run:
+   ```bash
+   but diff --json
+   ```
+   to get hunk-level IDs for granular commits.
 
-## Rules
+3. Check existing stacks - are we adding to one or need new branch?
 
-- NEVER use `git add .` without user consent
-- NEVER commit files that look like secrets (.env, credentials, keys)
-- NEVER amend commits unless explicitly requested
-- NEVER push unless explicitly requested
+4. Propose to user:
+   - Branch name (derive from file paths/change patterns)
+   - Commit message(s) - group by logical theme
+   - Which files/hunks go in each commit
+   - Anything excluded (debug code, unrelated changes)
+
+5. Use AskUserQuestion with options:
+   - "Approve"
+   - "Edit branch name"
+   - "Edit commit messages"
+   - "Reassign hunks"
+
+6. Execute commits using `but commit` commands.
+
+## Branch Naming Heuristics
+
+- Feature addition → `add-<thing>`
+- Bug fix → `fix-<thing>`
+- Refactor → `refactor-<scope>`
+- Multiple concerns → ask user to pick primary theme
