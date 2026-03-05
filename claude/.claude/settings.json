@@ -13,10 +13,7 @@
       "Bash(mkfs:*)",
       "Bash(dd if=* of=/dev/*:*)"
     ],
-    "ask": [
-      "Bash(git push --force:*)",
-      "Bash(git reset --hard:*)"
-    ]
+    "ask": ["Bash(git push --force:*)", "Bash(git reset --hard:*)"]
   },
   "model": "opus",
   "hooks": {
@@ -28,87 +25,6 @@
             "type": "command",
             "command": "bun run /Users/syndg/.claude/hooks/damage-control/damage-control.ts",
             "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun run /Users/syndg/.claude/tools/session-capture/capture.ts pre_tool_use",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "ccm hook PreToolUse"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun run /Users/syndg/.claude/tools/session-capture/capture.ts post_tool_use",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "ccm hook PostToolUse"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun run /Users/syndg/.claude/tools/session-capture/capture.ts stop",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "ccm hook Stop"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "matcher": ".*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bun run /Users/syndg/.claude/tools/session-capture/capture.ts user_prompt_submit",
-            "timeout": 5000
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "ccm hook UserPromptSubmit"
           }
         ]
       }
