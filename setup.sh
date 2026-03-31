@@ -178,9 +178,9 @@ link_shared_skills() {
 
     [ -d "$shared_skills" ] || return
 
-    mkdir -p "$HOME/.claude" "$HOME/.agents"
+    mkdir -p "$HOME/.claude" "$HOME/.agents" "$HOME/.codex"
 
-    for dest in "$HOME/.claude/skills" "$HOME/.agents/skills"; do
+    for dest in "$HOME/.claude/skills" "$HOME/.agents/skills" "$HOME/.codex/skills"; do
         if [ -L "$dest" ]; then
             rm -f "$dest"
         elif [ -e "$dest" ]; then

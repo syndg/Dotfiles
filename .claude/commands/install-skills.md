@@ -1,11 +1,11 @@
 ---
 disable-model-invocation: true
-description: "Link shared skills from this Dotfiles repo into ~/.claude/skills/ and ~/.agents/skills/"
+description: "Link shared skills from this Dotfiles repo into ~/.claude/skills/, ~/.agents/skills/, and ~/.codex/skills/"
 ---
 
 # Install Skills
 
-Link the shared skills directory from this repository into the user's global `~/.claude/skills/` and `~/.agents/skills/` directories.
+Link the shared skills directory from this repository into the user's global `~/.claude/skills/`, `~/.agents/skills/`, and `~/.codex/skills/` directories.
 
 ## Steps
 
@@ -18,14 +18,14 @@ Link the shared skills directory from this repository into the user's global `~/
    - `description`: The description from SKILL.md frontmatter (truncated to ~100 chars if needed)
 
 4. **Create shared symlinks**:
-   - Create `~/.claude/` and `~/.agents/` if they don't exist (`mkdir -p`)
-   - Remove or replace any existing `~/.claude/skills` and `~/.agents/skills` entries
-   - Symlink both directories to the shared source: `ln -s <repo-root>/skills ~/.claude/skills` and `ln -s <repo-root>/skills ~/.agents/skills`
+   - Create `~/.claude/`, `~/.agents/`, and `~/.codex/` if they don't exist (`mkdir -p`)
+   - Remove or replace any existing `~/.claude/skills`, `~/.agents/skills`, and `~/.codex/skills` entries
+   - Symlink all three directories to the shared source: `ln -s <repo-root>/skills ~/.claude/skills`, `ln -s <repo-root>/skills ~/.agents/skills`, and `ln -s <repo-root>/skills ~/.codex/skills`
 
-5. **Report results**: List the shared source path and confirm both final symlink targets.
+5. **Report results**: List the shared source path and confirm all final symlink targets.
 
 ## Important
 
 - The skills source is always `<repo-root>/skills/` — use `git rev-parse --show-toplevel` to locate it.
-- `~/.claude/skills` and `~/.agents/skills` should both point to the same shared directory.
-- Preserve or migrate any agent-only skills before replacing a real directory with a symlink.
+- `~/.claude/skills`, `~/.agents/skills`, and `~/.codex/skills` should all point to the same shared directory.
+- Preserve or migrate any agent-only or codex-only skills before replacing a real directory with a symlink.
