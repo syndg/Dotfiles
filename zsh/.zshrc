@@ -27,8 +27,7 @@ if [ "$_PLATFORM" = "termux" ]; then
     [ -s "$ZSH/oh-my-zsh.sh" ] && source "$ZSH/oh-my-zsh.sh"
 
     # Load Pure prompt (not a standard OMZ theme)
-    fpath+=("$HOME/.oh-my-zsh/custom/pure")
-    autoload -U promptinit; promptinit
+    fpath+=("$HOME/.oh-my-zsh/custom/pure") autoload -U promptinit; promptinit
     prompt pure
 else
     # macOS/Linux: Prezto
@@ -45,6 +44,7 @@ fi
 
 [ -f "$HOME/.zsh/aliases.zsh" ] && source "$HOME/.zsh/aliases.zsh"
 [ -f "$HOME/.zsh/functions.zsh" ] && source "$HOME/.zsh/functions.zsh"
+[ -f "$HOME/.zsh/projects.zsh" ] && source "$HOME/.zsh/projects.zsh"
 
 # ============================================
 # SSH Agent (all platforms)
@@ -117,6 +117,7 @@ if [ "$_PLATFORM" != "termux" ]; then
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    [[ "$(whence -w make 2>/dev/null)" == *function* ]] && unfunction make
 
     # Docker completions
     [ -d "$HOME/.docker/completions" ] && fpath=($HOME/.docker/completions $fpath)
@@ -130,8 +131,10 @@ if [ "$_PLATFORM" != "termux" ]; then
 
     # Claude Code tools
     [ -d "$HOME/.claude/tools" ] && export PATH="$HOME/.claude/tools:$PATH"
-    [ -f "$HOME/.claude/tools/wt-completions.zsh" ] && source "$HOME/.claude/tools/wt-completions.zsh"
 fi
 
-# Added by GitButler installer
-eval "$(but completions zsh)"
+# Worktrunk
+eval "$(wt config shell init zsh)"
+
+# Claude Mem
+alias claude-mem='bun "/Users/syndg/.claude/plugins/cache/thedotmack/claude-mem/10.6.1/scripts/worker-service.cjs"'

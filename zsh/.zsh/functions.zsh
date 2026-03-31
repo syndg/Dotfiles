@@ -250,3 +250,186 @@ run_n8n() {
 }
 
 fi # End desktop-only functions
+
+# ============================================
+# Worktrunk + cmux Functions
+# ============================================
+
+# Spawn a worktree with Claude in a new cmux pane (quad layout)
+# Usage: wt-spawn <branch> [-- 'task description']
+wt-spawn() {
+  if [[ -z "$1" ]]; then
+    echo "Usage: wt-spawn <branch> [-- 'task description']"
+    return 1
+  fi
+
+  local branch="$1"; shift
+  local task_args=""
+  if [[ "$1" == "--" ]]; then
+    shift
+    task_args="-- '${*}'"
+  fi
+
+  # Determine split direction for quad layout (TL, TR, BL, BR)
+  local pane_count
+  pane_count=$(cmux list-panes 2>/dev/null | grep -c '^')
+
+  local direction
+  case $pane_count in
+    1) direction="right" ;;
+    2) direction="down" ;;
+    3) direction="down" ;;
+    *) direction="right" ;;
+  esac
+
+  local output
+  output=$(cmux new-pane --direction "$direction" 2>&1)
+
+  # Extract surface ref (e.g., "surface:6" from "OK surface:6 pane:5 workspace:1")
+  local surface_ref
+  surface_ref=$(echo "$output" | grep -oE 'surface:[0-9]+' | head -1)
+
+  if [[ -z "$surface_ref" ]]; then
+    echo "Failed to create cmux pane: $output"
+    return 1
+  fi
+
+  sleep 0.3
+  cmux send-panel --panel "$surface_ref" \
+    "wt switch --create $branch -x claude $task_args\n"
+}
+
+# Create a cmux workspace for a project
+# Usage: wt-project <path> [name]
+wt-project() {
+  local project_path="${1:?Usage: wt-project <path> [name]}"
+  local name="${2:-$(basename "$project_path")}"
+
+  local output
+  output=$(cmux new-workspace --command "cd $project_path && exec zsh" 2>&1)
+  local ws_id
+  ws_id=$(echo "$output" | grep -oE '[A-F0-9-]{36}' | head -1)
+
+  if [[ -n "$ws_id" ]]; then
+    cmux rename-workspace --workspace "$ws_id" "$name"
+  fi
+}
+
+# Stage + LLM commit with review
+# Usage: wt-commit
+wt-commit() {
+  git add -A
+
+  if git diff --cached --quiet; then
+    echo "Nothing to commit."
+    return 0
+  fi
+
+  echo "── Staged changes ──"
+  git diff --cached --stat
+  echo ""
+
+  echo "Generating commit message..."
+  local msg
+  msg=$(wt step commit --show-prompt 2>/dev/null | \
+    CLAUDECODE= MAX_THINKING_TOKENS=0 claude -p --model=haiku \
+    --tools='' --disable-slash-commands --setting-sources='' --system-prompt='')
+
+  echo "── Generated message ──"
+  echo "$msg"
+  echo ""
+
+  read -q "REPLY?Commit with this message? [y/N] "
+  echo ""
+  if [[ "$REPLY" == "y" ]]; then
+    git commit -m "$(cat <<EOF
+$msg
+EOF
+)"
+    echo "Committed."
+  else
+    echo "Aborted. Changes remain staged."
+  fi
+}
+
+# Push branch + create PR with LLM description
+# Usage: wt-pr
+wt-pr() {
+  local branch
+  branch=$(git branch --show-current)
+  local default_branch
+  default_branch=$(wt config state default-branch 2>/dev/null || echo "main")
+
+  if [[ "$branch" == "$default_branch" ]]; then
+    echo "Can't create PR from $default_branch."
+    return 1
+  fi
+
+  # Push if needed
+  if ! git rev-parse --abbrev-ref "@{u}" &>/dev/null; then
+    echo "Pushing $branch to origin..."
+    git push -u origin "$branch"
+  else
+    local ahead
+    ahead=$(git rev-list "@{u}..HEAD" --count)
+    if [[ "$ahead" -gt 0 ]]; then
+      echo "Pushing $ahead commit(s)..."
+      git push
+    fi
+  fi
+
+  # Generate PR content from diff
+  echo "Generating PR description..."
+  local diff_input
+  diff_input=$(printf '%s\n---\n%s' \
+    "$(git log "$default_branch..HEAD" --pretty=format:"%s%n%b")" \
+    "$(git diff "$default_branch..HEAD" --stat)")
+
+  local pr_content
+  pr_content=$(echo "$diff_input" | \
+    CLAUDECODE= MAX_THINKING_TOKENS=0 claude -p --model=haiku \
+    --tools='' --disable-slash-commands --setting-sources='' --system-prompt='' \
+    --append-system-prompt 'Generate a PR title on line 1, then a blank line, then a markdown PR body with ## Summary and ## Changes sections. Be concise.')
+
+  local pr_title
+  pr_title=$(echo "$pr_content" | head -1)
+  local pr_body
+  pr_body=$(echo "$pr_content" | tail -n +3)
+
+  echo "── PR Title ──"
+  echo "$pr_title"
+  echo ""
+  echo "── PR Body ──"
+  echo "$pr_body"
+  echo ""
+
+  read -q "REPLY?Create PR? [y/N] "
+  echo ""
+  if [[ "$REPLY" == "y" ]]; then
+    local url
+    url=$(gh pr create --title "$pr_title" --body "$(cat <<EOF
+$pr_body
+EOF
+)")
+    echo "$url"
+  else
+    echo "Aborted. Branch is pushed, create PR manually."
+  fi
+}
+
+# Clean up worktree after PR merged, back to main
+# Usage: wt-done
+wt-done() {
+  local branch
+  branch=$(git branch --show-current)
+  local default_branch
+  default_branch=$(wt config state default-branch 2>/dev/null || echo "main")
+
+  if [[ "$branch" == "$default_branch" ]]; then
+    echo "Already on $default_branch."
+    return 0
+  fi
+
+  wt remove "$branch"
+  echo "Cleaned up $branch."
+}

@@ -1,8 +1,8 @@
 {
   "env": {
-    "ENABLE_TOOL_SEARCH": "true",
+    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
     "CLAUDE_CODE_MONITOR_GHOSTTY_ASKED": "1",
-    "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1"
+    "ENABLE_TOOL_SEARCH": "true"
   },
   "includeCoAuthoredBy": false,
   "permissions": {
@@ -13,18 +13,122 @@
       "Bash(mkfs:*)",
       "Bash(dd if=* of=/dev/*:*)"
     ],
-    "ask": ["Bash(git push --force:*)", "Bash(git reset --hard:*)"]
+    "ask": [
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)"
+    ]
   },
-  "model": "opus",
   "hooks": {
-    "PreToolUse": [
+    "PermissionRequest": [
       {
-        "matcher": "Bash|Edit|Write",
+        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "bun run /Users/syndg/.claude/hooks/damage-control/damage-control.ts",
-            "timeout": 5000
+            "command": "~/.claude/hooks/notchi-hook.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notchi-hook.sh"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notchi-hook.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "manual",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notchi-hook.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notchi-hook.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Grep|Glob|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"/Users/syndg/.claude/hooks/gitnexus/gitnexus-hook.cjs\"",
+            "timeout": 8000,
+            "statusMessage": "Enriching with GitNexus graph context..."
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notchi-hook.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notchi-hook.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notchi-hook.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notchi-hook.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/notchi-hook.sh"
           }
         ]
       }
@@ -35,11 +139,22 @@
     "command": "/bin/bash /Users/syndg/.claude/statusline-enhanced.sh"
   },
   "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true,
     "context7@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true
+    "frontend-design@claude-plugins-official": true,
+    "playground@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "claude-mem@thedotmack": true
   },
+  "extraKnownMarketplaces": {
+    "thedotmack": {
+      "source": {
+        "source": "github",
+        "repo": "thedotmack/claude-mem"
+      }
+    }
+  },
+  "effortLevel": "medium",
+  "voiceEnabled": false,
   "skipDangerousModePermissionPrompt": true,
-  "gitAttribution": false,
-  "effortLevel": "high"
+  "gitAttribution": false
 }
