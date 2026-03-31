@@ -170,6 +170,29 @@ setup_nvim() {
 }
 
 # ============================================
+# Shared AI skills
+# ============================================
+
+link_shared_skills() {
+    local shared_skills="$DOTS_DIR/skills"
+
+    [ -d "$shared_skills" ] || return
+
+    mkdir -p "$HOME/.claude" "$HOME/.agents"
+
+    for dest in "$HOME/.claude/skills" "$HOME/.agents/skills"; do
+        if [ -L "$dest" ]; then
+            rm -f "$dest"
+        elif [ -e "$dest" ]; then
+            local backup="${dest}.backup.$(date +%Y%m%d%H%M%S)"
+            mv "$dest" "$backup"
+            warn "Moved existing skills directory to $backup"
+        fi
+        ln -s "$shared_skills" "$dest"
+    done
+}
+
+# ============================================
 # Stow dotfiles
 # ============================================
 
@@ -218,6 +241,7 @@ main() {
     setup_zsh
     setup_nvim
     stow_packages
+    [ "$PLATFORM" != "termux" ] && link_shared_skills
     setup_termux_font
 
     echo

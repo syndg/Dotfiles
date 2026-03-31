@@ -103,4 +103,4 @@ ralph-meta/
 
 ## Installation
 
-Copy this skill directory to `~/.claude/skills/ralph-meta/`, or use the `/install-skills` command from the Dotfiles repo to install interactively.
+Copy this skill directory into your shared skills directory, or use the `/install-skills` command from the Dotfiles repo to link the shared repo skills into place.

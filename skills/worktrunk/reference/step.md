@@ -1,0 +1,611 @@
+# wt step
+
+Run individual operations. The building blocks of wt merge — commit, squash, rebase, push — plus standalone utilities.
+
+## Examples
+
+Commit with LLM-generated message:
+
+```bash
+wt step commit
+```
+
+Manual merge workflow with review between steps:
+
+```bash
+wt step commit
+wt step squash
+wt step rebase
+wt step push
+```
+
+## Operations
+
+- `commit` — Stage and commit with [LLM-generated message](https://worktrunk.dev/llm-commits/)
+- `squash` — Squash all branch commits into one with [LLM-generated message](https://worktrunk.dev/llm-commits/)
+- `rebase` — Rebase onto target branch
+- `push` — Fast-forward target to current branch
+- `diff` — Show all changes since branching (committed, staged, unstaged, untracked)
+- `copy-ignored` — Copy gitignored files between worktrees
+- `for-each` — [experimental] Run a command in every worktree
+- `promote` — [experimental] Put a branch into the main worktree
+- `prune` — Remove worktrees and branches merged into the default branch
+- `relocate` — [experimental] Move worktrees to expected paths
+- `<alias>` — [experimental] Run a configured command alias
+
+## Aliases
+
+Custom command templates configured in user config (`~/.config/worktrunk/config.toml`) or project config (`.config/wt.toml`). Aliases support the same [template variables](https://worktrunk.dev/hook/#template-variables) as hooks.
+
+```toml
+# .config/wt.toml
+[aliases]
+deploy = "make deploy BRANCH={{ branch }}"
+port = "echo http://localhost:{{ branch | hash_port }}"
+```
+
+```bash
+wt step deploy                            # run the alias
+wt step deploy --dry-run                  # show expanded command
+wt step deploy --var env=staging          # pass extra template variables
+wt step deploy --yes                      # skip approval prompt
+```
+
+When defined in both user and project config, user aliases take precedence. Project-config aliases require [command approval](https://worktrunk.dev/hook/#command-approval) on first run (same as project hooks). User-config aliases are trusted.
+
+Alias names that match a built-in step command (`commit`, `squash`, etc.) are shadowed by the built-in and will never run.
+
+## Command reference
+
+wt step - Run individual operations
+
+The building blocks of <b>wt merge</b> — commit, squash, rebase, push — plus standalone
+utilities.
+
+Usage: <b><span class=c>wt step</span></b> <span class=c>[OPTIONS]</span> <span class=c>&lt;COMMAND&gt;</span>
+
+<b><span class=g>Commands:</span></b>
+  <b><span class=c>commit</span></b>        Stage and commit with LLM-generated message
+  <b><span class=c>squash</span></b>        Squash commits since branching
+  <b><span class=c>push</span></b>          Fast-forward target to current branch
+  <b><span class=c>rebase</span></b>        Rebase onto target
+  <b><span class=c>diff</span></b>          Show all changes since branching
+  <b><span class=c>copy-ignored</span></b>  Copy gitignored files to another worktree
+  <b><span class=c>for-each</span></b>      [experimental] Run command in each worktree
+  <b><span class=c>promote</span></b>       [experimental] Put a branch into the main worktree
+  <b><span class=c>prune</span></b>         [experimental] Remove worktrees merged into the default branch
+  <b><span class=c>relocate</span></b>      [experimental] Move worktrees to expected paths
+
+<b><span class=g>Options:</span></b>
+  <b><span class=c>-h</span></b>, <b><span class=c>--help</span></b>
+          Print help (see a summary with &#39;-h&#39;)
+
+<b><span class=g>Global Options:</span></b>
+  <b><span class=c>-C</span></b><span class=c> &lt;path&gt;</span>
+          Working directory for this command
+
+      <b><span class=c>--config</span></b><span class=c> &lt;path&gt;</span>
+          User config file path
+
+  <b><span class=c>-v</span></b>, <b><span class=c>--verbose</span></b><span class=c>...</span>
+          Verbose output (-v: hooks, templates; -vv: debug report)
+
+# Subcommands
+
+## wt step commit
+
+Stage and commit with LLM-generated message.
+
+Stages all changes (including untracked files) and commits with an [LLM-generated message](https://worktrunk.dev/llm-commits/).
+
+### Options
+
+#### `--stage`
+
+Controls what to stage before committing:
+
+| Value | Behavior |
+|-------|----------|
+| `all` | Stage all changes including untracked files (default) |
+| `tracked` | Stage only modified tracked files |
+| `none` | Don't stage anything, commit only what's already staged |
+
+```bash
+wt step commit --stage=tracked
+```
+
+Configure the default in user config:
+
+```toml
+[commit]
+stage = "tracked"
+```
+
+#### `--show-prompt`
+
+Output the rendered LLM prompt to stdout without running the command. Useful for inspecting prompt templates or piping to other tools:
+
+```bash
+# Inspect the rendered prompt
+wt step commit --show-prompt | less
+
+# Pipe to a different LLM
+wt step commit --show-prompt | llm -m gpt-5-nano
+```
+
+### Command reference
+
+wt step commit - Stage and commit with LLM-generated message
+
+Usage: <b><span class=c>wt step commit</span></b> <span class=c>[OPTIONS]</span>
+
+<b><span class=g>Options:</span></b>
+  <b><span class=c>-y</span></b>, <b><span class=c>--yes</span></b>
+          Skip approval prompts
+
+      <b><span class=c>--no-verify</span></b>
+          Skip hooks
+
+      <b><span class=c>--stage</span></b><span class=c> &lt;STAGE&gt;</span>
+          What to stage before committing [default: all]
+
+          Possible values:
+          - <b><span class=c>all</span></b>:     Stage everything: untracked files + unstaged tracked
+            changes
+          - <b><span class=c>tracked</span></b>: Stage tracked changes only (like <b>git add -u</b>)
+          - <b><span class=c>none</span></b>:    Stage nothing, commit only what&#39;s already in the index
+
+      <b><span class=c>--show-prompt</span></b>
+          Show prompt without running LLM
+
+          Outputs the rendered prompt to stdout for debugging or manual piping.
+
+  <b><span class=c>-h</span></b>, <b><span class=c>--help</span></b>
+          Print help (see a summary with &#39;-h&#39;)
+
+<b><span class=g>Global Options:</span></b>
+  <b><span class=c>-C</span></b><span class=c> &lt;path&gt;</span>
+          Working directory for this command
+
+      <b><span class=c>--config</span></b><span class=c> &lt;path&gt;</span>
+          User config file path
+
+  <b><span class=c>-v</span></b>, <b><span class=c>--verbose</span></b><span class=c>...</span>
+          Verbose output (-v: hooks, templates; -vv: debug report)
+
+## wt step squash
+
+Squash commits since branching. Stages changes and generates message with LLM.
+
+Stages all changes (including untracked files), then squashes all commits since diverging from the target branch into a single commit with an [LLM-generated message](https://worktrunk.dev/llm-commits/).
+
+### Options
+
+#### `--stage`
+
+Controls what to stage before squashing:
+
+| Value | Behavior |
+|-------|----------|
+| `all` | Stage all changes including untracked files (default) |
+| `tracked` | Stage only modified tracked files |
+| `none` | Don't stage anything, squash only committed changes |
+
+```bash
+wt step squash --stage=none
+```
+
+Configure the default in user config:
+
+```toml
+[commit]
+stage = "tracked"
+```
+
+#### `--show-prompt`
+
+Output the rendered LLM prompt to stdout without running the command. Useful for inspecting prompt templates or piping to other tools:
+
+```bash
+wt step squash --show-prompt | less
+```
+
+### Command reference
+
+wt step squash - Squash commits since branching
+
+Stages changes and generates message with LLM.
+
+Usage: <b><span class=c>wt step squash</span></b> <span class=c>[OPTIONS]</span> <span class=c>[TARGET]</span>
+
+<b><span class=g>Arguments:</span></b>
+  <span class=c>[TARGET]</span>
+          Target branch
+
+          Defaults to default branch.
+
+<b><span class=g>Options:</span></b>
+  <b><span class=c>-y</span></b>, <b><span class=c>--yes</span></b>
+          Skip approval prompts
+
+      <b><span class=c>--no-verify</span></b>
+          Skip hooks
+
+      <b><span class=c>--stage</span></b><span class=c> &lt;STAGE&gt;</span>
+          What to stage before committing [default: all]
+
+          Possible values:
+          - <b><span class=c>all</span></b>:     Stage everything: untracked files + unstaged tracked
+            changes
+          - <b><span class=c>tracked</span></b>: Stage tracked changes only (like <b>git add -u</b>)
+          - <b><span class=c>none</span></b>:    Stage nothing, commit only what&#39;s already in the index
+
+      <b><span class=c>--show-prompt</span></b>
+          Show prompt without running LLM
+
+          Outputs the rendered prompt to stdout for debugging or manual piping.
+
+  <b><span class=c>-h</span></b>, <b><span class=c>--help</span></b>
+          Print help (see a summary with &#39;-h&#39;)
+
+<b><span class=g>Global Options:</span></b>
+  <b><span class=c>-C</span></b><span class=c> &lt;path&gt;</span>
+          Working directory for this command
+
+      <b><span class=c>--config</span></b><span class=c> &lt;path&gt;</span>
+          User config file path
+
+  <b><span class=c>-v</span></b>, <b><span class=c>--verbose</span></b><span class=c>...</span>
+          Verbose output (-v: hooks, templates; -vv: debug report)
+
+## wt step copy-ignored
+
+Copy gitignored files to another worktree. Eliminates cold starts by copying build caches and dependencies.
+
+Git worktrees share the repository but not untracked files. This command copies gitignored files to another worktree, eliminating cold starts.
+
+### Setup
+
+Add to the project config:
+
+```toml
+# .config/wt.toml
+[post-start]
+copy = "wt step copy-ignored"
+```
+
+### What gets copied
+
+All gitignored files are copied by default. Tracked files are never touched.
+
+To limit what gets copied, create `.worktreeinclude` with gitignore-style patterns. Files must be **both** gitignored **and** in `.worktreeinclude`:
+
+```text
+# .worktreeinclude
+.env
+node_modules/
+target/
+```
+
+### Common patterns
+
+| Type | Patterns |
+|------|----------|
+| Dependencies | `node_modules/`, `.venv/`, `target/`, `vendor/`, `Pods/` |
+| Build caches | `.cache/`, `.next/`, `.parcel-cache/`, `.turbo/` |
+| Generated assets | Images, ML models, binaries too large for git |
+| Environment files | `.env` (if not generated per-worktree) |
+
+### Features
+
+- Uses copy-on-write (reflink) when available for space-efficient copies
+- Handles nested `.gitignore` files, global excludes, and `.git/info/exclude`
+- Skips existing files by default (safe to re-run)
+- `--force` overwrites existing files in the destination
+- Skips `.git` entries, VCS metadata directories (`.jj`, `.hg`, etc.), and other worktrees
+
+### Performance
+
+Reflink copies share disk blocks until modified — no data is actually copied. For a 14GB `target/` directory:
+
+| Command | Time |
+|---------|------|
+| `cp -R` (full copy) | 2m |
+| `cp -Rc` / `wt step copy-ignored` | 20s |
+
+Uses per-file reflink (like `cp -Rc`) — copy time scales with file count.
+
+Use the `post-start` hook so the copy runs in the background. Use `post-create` instead if subsequent hooks or `--execute` command need the copied files immediately.
+
+### Language-specific notes
+
+#### Rust
+
+The `target/` directory is huge (often 1-10GB). Copying with reflink cuts first build from ~68s to ~3s by reusing compiled dependencies.
+
+#### Node.js
+
+`node_modules/` is large but mostly static. If the project has no native dependencies, symlinks are even faster:
+
+```toml
+[post-create]
+deps = "ln -sf {{ primary_worktree_path }}/node_modules ."
+```
+
+#### Python
+
+Virtual environments contain absolute paths and can't be copied. Use `uv sync` instead — it's fast enough that copying isn't worth it.
+
+### Behavior vs Claude Code on desktop
+
+The `.worktreeinclude` pattern is shared with [Claude Code on desktop](https://code.claude.com/docs/en/desktop), which copies matching files when creating worktrees. Differences:
+
+- worktrunk copies all gitignored files by default; Claude Code requires `.worktreeinclude`
+- worktrunk uses copy-on-write for large directories like `target/` — potentially 30x faster on macOS, 6x on Linux
+- worktrunk runs as a configurable hook in the worktree lifecycle
+
+### Command reference
+
+wt step copy-ignored - Copy gitignored files to another worktree
+
+Eliminates cold starts by copying build caches and dependencies.
+
+Usage: <b><span class=c>wt step copy-ignored</span></b> <span class=c>[OPTIONS]</span>
+
+<b><span class=g>Options:</span></b>
+      <b><span class=c>--from</span></b><span class=c> &lt;FROM&gt;</span>
+          Source worktree branch
+
+          Defaults to main worktree.
+
+      <b><span class=c>--to</span></b><span class=c> &lt;TO&gt;</span>
+          Destination worktree branch
+
+          Defaults to current worktree.
+
+      <b><span class=c>--dry-run</span></b>
+          Show what would be copied
+
+      <b><span class=c>--force</span></b>
+          Overwrite existing files in destination
+
+  <b><span class=c>-h</span></b>, <b><span class=c>--help</span></b>
+          Print help (see a summary with &#39;-h&#39;)
+
+<b><span class=g>Global Options:</span></b>
+  <b><span class=c>-C</span></b><span class=c> &lt;path&gt;</span>
+          Working directory for this command
+
+      <b><span class=c>--config</span></b><span class=c> &lt;path&gt;</span>
+          User config file path
+
+  <b><span class=c>-v</span></b>, <b><span class=c>--verbose</span></b><span class=c>...</span>
+          Verbose output (-v: hooks, templates; -vv: debug report)
+
+## wt step for-each
+
+[experimental] Run command in each worktree. Executes sequentially with real-time output; continues on failure.
+
+Executes a command sequentially in every worktree with real-time output. Continues on failure and shows a summary at the end.
+
+Context JSON is piped to stdin for scripts that need structured data.
+
+### Template variables
+
+All variables are shell-escaped. See [`wt hook` template variables](https://worktrunk.dev/hook/#template-variables) for the complete list and filters.
+
+### Examples
+
+Check status across all worktrees:
+
+```bash
+wt step for-each -- git status --short
+```
+
+Run npm install in all worktrees:
+
+```bash
+wt step for-each -- npm install
+```
+
+Use branch name in command:
+
+```bash
+wt step for-each -- "echo Branch: {{ branch }}"
+```
+
+Pull updates in worktrees with upstreams (skips others):
+
+```bash
+git fetch --prune && wt step for-each -- '[ "$(git rev-parse @{u} 2>/dev/null)" ] || exit 0; git pull --autostash'
+```
+
+Note: This command is experimental and may change in future versions.
+
+### Command reference
+
+wt step for-each - [experimental] Run command in each worktree
+
+Executes sequentially with real-time output; continues on failure.
+
+Usage: <b><span class=c>wt step for-each</span></b> <span class=c>[OPTIONS]</span> <b><span class=c>--</span></b> <span class=c>&lt;ARGS&gt;...</span>
+
+<b><span class=g>Arguments:</span></b>
+  <span class=c>&lt;ARGS&gt;...</span>
+          Command template (see --help for all variables)
+
+<b><span class=g>Options:</span></b>
+  <b><span class=c>-h</span></b>, <b><span class=c>--help</span></b>
+          Print help (see a summary with &#39;-h&#39;)
+
+<b><span class=g>Global Options:</span></b>
+  <b><span class=c>-C</span></b><span class=c> &lt;path&gt;</span>
+          Working directory for this command
+
+      <b><span class=c>--config</span></b><span class=c> &lt;path&gt;</span>
+          User config file path
+
+  <b><span class=c>-v</span></b>, <b><span class=c>--verbose</span></b><span class=c>...</span>
+          Verbose output (-v: hooks, templates; -vv: debug report)
+
+## wt step prune
+
+[experimental] Remove worktrees merged into the default branch.
+
+Bulk-removes worktrees and branches that are integrated into the default branch, using the same criteria as `wt remove`'s branch cleanup. Stale worktree entries are cleaned up too.
+
+In `wt list`, candidates show `_` (same commit) or `⊂` (content integrated). Run `--dry-run` to preview. See `wt remove --help` for the full integration criteria.
+
+Locked worktrees and the main worktree are always skipped. The current worktree is removed last, triggering cd to the primary worktree. Pre-remove and post-remove hooks run for each removal.
+
+### Min-age guard
+
+Worktrees younger than `--min-age` (default: 1 hour) are skipped. This prevents removing a worktree just created from the default branch — it looks "merged" because its branch points at the same commit.
+
+```bash
+wt step prune --min-age=0s     # no age guard
+wt step prune --min-age=2d     # skip worktrees younger than 2 days
+```
+
+### Examples
+
+Preview what would be removed:
+
+```bash
+wt step prune --dry-run
+```
+
+Remove all merged worktrees:
+
+```bash
+wt step prune
+```
+
+### Command reference
+
+wt step prune - [experimental] Remove worktrees merged into the default branch
+
+Usage: <b><span class=c>wt step prune</span></b> <span class=c>[OPTIONS]</span>
+
+<b><span class=g>Options:</span></b>
+      <b><span class=c>--dry-run</span></b>
+          Show what would be removed
+
+  <b><span class=c>-y</span></b>, <b><span class=c>--yes</span></b>
+          Skip approval prompts
+
+      <b><span class=c>--min-age</span></b><span class=c> &lt;MIN_AGE&gt;</span>
+          Skip worktrees younger than this
+
+          [default: 1h]
+
+      <b><span class=c>--foreground</span></b>
+          Run removal in foreground (block until complete)
+
+  <b><span class=c>-h</span></b>, <b><span class=c>--help</span></b>
+          Print help (see a summary with &#39;-h&#39;)
+
+<b><span class=g>Global Options:</span></b>
+  <b><span class=c>-C</span></b><span class=c> &lt;path&gt;</span>
+          Working directory for this command
+
+      <b><span class=c>--config</span></b><span class=c> &lt;path&gt;</span>
+          User config file path
+
+  <b><span class=c>-v</span></b>, <b><span class=c>--verbose</span></b><span class=c>...</span>
+          Verbose output (-v: hooks, templates; -vv: debug report)
+
+## wt step relocate
+
+[experimental] Move worktrees to expected paths. Relocates worktrees whose path doesn't match the worktree-path template.
+
+Moves worktrees to match the configured `worktree-path` template.
+
+### Examples
+
+Preview what would be moved:
+
+```bash
+wt step relocate --dry-run
+```
+
+Move all mismatched worktrees:
+
+```bash
+wt step relocate
+```
+
+Auto-commit and clobber blockers (never fails):
+
+```bash
+wt step relocate --commit --clobber
+```
+
+Move specific worktrees:
+
+```bash
+wt step relocate feature bugfix
+```
+
+### Swap handling
+
+When worktrees are at each other's expected locations (e.g., `alpha` at
+`repo.beta` and `beta` at `repo.alpha`), relocate automatically resolves
+this by using a temporary location.
+
+### Clobbering
+
+With `--clobber`, non-worktree paths at target locations are moved to
+`<path>.bak-<timestamp>` before relocating.
+
+### Main worktree behavior
+
+The main worktree can't be moved with `git worktree move`. Instead, relocate
+switches it to the default branch and creates a new linked worktree at the
+expected path. Untracked and gitignored files remain at the original location.
+
+### Skipped worktrees
+
+- **Dirty** (without `--commit`) — use `--commit` to auto-commit first
+- **Locked** — unlock with `git worktree unlock`
+- **Target blocked** (without `--clobber`) — use `--clobber` to backup blocker
+- **Detached HEAD** — no branch to compute expected path
+
+Note: This command is experimental and may change in future versions.
+
+### Command reference
+
+wt step relocate - [experimental] Move worktrees to expected paths
+
+Relocates worktrees whose path doesn&#39;t match the <b>worktree-path</b> template.
+
+Usage: <b><span class=c>wt step relocate</span></b> <span class=c>[OPTIONS]</span> <span class=c>[BRANCHES]...</span>
+
+<b><span class=g>Arguments:</span></b>
+  <span class=c>[BRANCHES]...</span>
+          Worktrees to relocate (defaults to all mismatched)
+
+<b><span class=g>Options:</span></b>
+      <b><span class=c>--dry-run</span></b>
+          Show what would be moved
+
+      <b><span class=c>--commit</span></b>
+          Commit uncommitted changes before relocating
+
+      <b><span class=c>--clobber</span></b>
+          Backup non-worktree paths at target locations
+
+          Moves blocking paths to <b>&lt;path&gt;.bak-&lt;timestamp&gt;</b>.
+
+  <b><span class=c>-h</span></b>, <b><span class=c>--help</span></b>
+          Print help (see a summary with &#39;-h&#39;)
+
+<b><span class=g>Global Options:</span></b>
+  <b><span class=c>-C</span></b><span class=c> &lt;path&gt;</span>
+          Working directory for this command
+
+      <b><span class=c>--config</span></b><span class=c> &lt;path&gt;</span>
+          User config file path
+
+  <b><span class=c>-v</span></b>, <b><span class=c>--verbose</span></b><span class=c>...</span>
+          Verbose output (-v: hooks, templates; -vv: debug report)

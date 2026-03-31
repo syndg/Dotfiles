@@ -19,6 +19,7 @@ cd ~/Dotfiles
 |---------|-------------|-----------|
 | `zsh` | Shell config (Prezto/Oh-My-Zsh), aliases, functions | All |
 | `claude` | Claude Code settings, commands, hooks, tools | macOS, Linux |
+| `skills` | Shared AI skills symlinked into `~/.claude/skills` and `~/.agents/skills` | macOS, Linux |
 | `lvim` | LunarVim config with Codeium AI | macOS, Linux |
 | `kitty` | Kitty terminal config + themes | macOS, Linux |
 | `ghostty` | Ghostty terminal config | macOS |
@@ -35,6 +36,8 @@ stow claude
 stow lvim
 # etc.
 ```
+
+`./setup.sh` also links the repo's shared [`skills/`](/Users/syndg/Dotfiles/skills) directory to both `~/.claude/skills` and `~/.agents/skills`.
 
 ## Platform Detection
 

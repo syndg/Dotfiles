@@ -37,12 +37,11 @@ Start by understanding the current project context, then ask questions one at a 
 **Documentation:**
 - Write the validated design to `docs/plans/YYYY-MM-DD-<topic>-design.md`
 - Use elements-of-style:writing-clearly-and-concisely skill if available
-- Commit the design document using GitButler
+- Commit the design document with standard Git
 
 **Implementation (if continuing):**
 - Ask: "Ready to set up for implementation?"
-- Use the gitbutler skill to create a new stack for this feature: `but branch new <feature-name>`
-- GitButler allows working on multiple features simultaneously without context switching - no need to stash or switch branches
+- Create a feature branch for this work
 - Create an implementation plan as a markdown checklist in the design doc or a separate `docs/plans/YYYY-MM-DD-<feature>-plan.md`
 
 ## Key Principles
