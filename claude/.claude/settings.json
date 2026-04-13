@@ -18,21 +18,7 @@
       "Bash(git reset --hard:*)"
     ]
   },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Grep|Glob|Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"/Users/syndg/.claude/hooks/gitnexus/gitnexus-hook.cjs\"",
-            "timeout": 8000,
-            "statusMessage": "Enriching with GitNexus graph context..."
-          }
-        ]
-      }
-    ]
-  },
+  "hooks": {},
   "statusLine": {
     "type": "command",
     "command": "/bin/bash /Users/syndg/.claude/statusline-enhanced.sh"

@@ -138,3 +138,6 @@ eval "$(wt config shell init zsh)"
 
 # Claude Mem
 alias claude-mem='bun "/Users/syndg/.claude/plugins/cache/thedotmack/claude-mem/10.6.1/scripts/worker-service.cjs"'
+
+# opencode
+export PATH=/Users/syndg/.opencode/bin:$PATH

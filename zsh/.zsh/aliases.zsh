@@ -53,6 +53,9 @@ alias hetzner='mosh --ssh="ssh -i ~/.ssh/hetzner" syndg@95.217.159.10'
 alias cc="claude"
 alias ccyolo="claude --dangerously-skip-permissions"
 
+# Opencode
+alias oc="opencode"
+
 # Skills CLI (custom fork)
 alias skills="bun run /Volumes/External/Coding/skills/src/cli.ts"
 

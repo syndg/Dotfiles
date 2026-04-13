@@ -34,15 +34,7 @@ Start by understanding the current project context, then ask questions one at a 
 
 ## After the Design
 
-**Documentation:**
-- Write the validated design to `docs/plans/YYYY-MM-DD-<topic>-design.md`
-- Use elements-of-style:writing-clearly-and-concisely skill if available
-- Commit the design document with standard Git
-
-**Implementation (if continuing):**
-- Ask: "Ready to set up for implementation?"
-- Create a feature branch for this work
-- Create an implementation plan as a markdown checklist in the design doc or a separate `docs/plans/YYYY-MM-DD-<feature>-plan.md`
+- If implementation is continuing, ask: "Ready to set up for implementation?"
 
 ## Key Principles
 
