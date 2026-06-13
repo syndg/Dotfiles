@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Extract and clean YouTube transcripts using yt-dlp."""
+"""Capture a YouTube transcript into the wiki's raw/ layer.
+
+Capture-only: downloads + cleans the transcript and writes it to raw/ as an
+immutable source. Summarizing, cross-linking, and indexing are the wiki-ingest
+skill's job — this script never writes to wiki/ and never produces a summary.
+"""
 
 import argparse
 import json
@@ -48,8 +53,8 @@ def download_subtitles(url: str, tmp_dir: str, video_id: str) -> str:
     sys.exit(1)
 
 
-def parse_vtt(vtt_path: str, include_timestamps: bool = True) -> tuple[str, str]:
-    """Parse VTT file into clean text. Returns (timestamped_text, plain_text)."""
+def parse_vtt(vtt_path: str, include_timestamps: bool = True) -> str:
+    """Parse VTT file into clean transcript text."""
     with open(vtt_path) as f:
         content = f.read()
 
@@ -57,8 +62,7 @@ def parse_vtt(vtt_path: str, include_timestamps: bool = True) -> tuple[str, str]
     content = re.sub(r'WEBVTT.*?\n\n', '', content, count=1, flags=re.DOTALL)
 
     blocks = content.strip().split('\n\n')
-    timestamped_lines = []
-    plain_lines = []
+    lines_out = []
     seen = set()
 
     for block in blocks:
@@ -83,14 +87,13 @@ def parse_vtt(vtt_path: str, include_timestamps: bool = True) -> tuple[str, str]
         for text in text_parts:
             if text not in seen:
                 seen.add(text)
-                plain_lines.append(text)
-                if timestamp:
-                    timestamped_lines.append(f"[{timestamp}] {text}")
+                if include_timestamps and timestamp:
+                    lines_out.append(f"[{timestamp}] {text}")
                     timestamp = None  # Only stamp first unseen line per block
                 else:
-                    timestamped_lines.append(text)
+                    lines_out.append(text)
 
-    return '\n'.join(timestamped_lines), ' '.join(plain_lines)
+    return '\n'.join(lines_out)
 
 
 def slugify(text: str) -> str:
@@ -103,16 +106,17 @@ def slugify(text: str) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Extract YouTube transcript")
+    parser = argparse.ArgumentParser(description="Capture a YouTube transcript into the wiki's raw/ layer")
     parser.add_argument("url", help="YouTube video URL")
-    parser.add_argument("--topic", default="Uncategorized", help="Topic folder name")
-    parser.add_argument("--no-timestamps", action="store_true", help="Exclude timestamps")
-    parser.add_argument("--output-dir", default=os.path.expanduser("~/Knowledge/Life/Transcriptions"),
-                        help="Base output directory")
+    parser.add_argument("--no-timestamps", action="store_true", help="Exclude timestamps from the transcript")
+    parser.add_argument("--raw-dir", default=os.path.expanduser("~/Knowledge/raw"),
+                        help="Wiki raw/ directory to write the transcript into")
     parser.add_argument("--tmp-dir", default="/tmp/yt-transcripts", help="Temp directory for VTT files")
     args = parser.parse_args()
 
     os.makedirs(args.tmp_dir, exist_ok=True)
+    raw_dir = Path(args.raw_dir)
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
     print("Fetching video info...", file=sys.stderr)
     info = get_video_info(args.url)
@@ -120,14 +124,10 @@ def main():
     print(f"Downloading subtitles for: {info['title']}", file=sys.stderr)
     vtt_path = download_subtitles(args.url, args.tmp_dir, info['id'])
 
-    timestamped, plain = parse_vtt(vtt_path, not args.no_timestamps)
-
-    # Build output path: ~/Knowledge/Life/Transcriptions/<Topic>/<slug>.md
-    topic_dir = Path(args.output_dir) / args.topic
-    topic_dir.mkdir(parents=True, exist_ok=True)
+    transcript = parse_vtt(vtt_path, not args.no_timestamps)
 
     slug = slugify(info['title'])
-    output_path = topic_dir / f"{slug}.md"
+    output_path = raw_dir / f"{slug}.md"
 
     # Format duration
     duration_s = int(info.get('duration', 0) or 0)
@@ -137,8 +137,8 @@ def main():
     upload_raw = info.get('upload_date', '')
     upload_fmt = f"{upload_raw[:4]}-{upload_raw[4:6]}-{upload_raw[6:8]}" if len(upload_raw) == 8 else upload_raw
 
-    # Write markdown
     md_content = f"""---
+type: youtube
 title: "{info['title']}"
 channel: "{info.get('channel', 'Unknown')}"
 date: {upload_fmt}
@@ -151,14 +151,22 @@ extracted: {datetime.now().strftime('%Y-%m-%d')}
 
 ## Transcript
 
-{timestamped}
+{transcript}
 """
 
     output_path.write_text(md_content)
-    print(f"Saved: {output_path}", file=sys.stderr)
 
-    # Output plain text to stdout for piping to summarizer
-    print(plain)
+    # Report metadata only — not the transcript body. wiki-ingest reads the file.
+    word_count = len(transcript.split())
+    print(json.dumps({
+        "raw_path": str(output_path),
+        "slug": slug,
+        "title": info["title"],
+        "channel": info.get("channel", "Unknown"),
+        "duration": duration_fmt,
+        "url": args.url,
+        "word_count": word_count,
+    }, indent=2))
 
 
 if __name__ == "__main__":
