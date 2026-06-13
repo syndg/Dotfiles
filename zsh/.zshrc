@@ -141,3 +141,9 @@ alias claude-mem='bun "/Users/syndg/.claude/plugins/cache/thedotmack/claude-mem/
 
 # opencode
 export PATH=/Users/syndg/.opencode/bin:$PATH
+
+# Added by Antigravity IDE
+export PATH="/Users/syndg/.antigravity-ide/antigravity-ide/bin:$PATH"
+
+# Ensure standalone claude CLI takes precedence over desktop app bundle
+export PATH="$HOME/.local/bin:$PATH"

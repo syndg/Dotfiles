@@ -1,0 +1,7 @@
+interface:
+  display_name: "YouTube History DB"
+  short_description: "Query local YouTube history data"
+  default_prompt: "Use $youtube-history-db to answer questions from my local YouTube history database."
+
+policy:
+  allow_implicit_invocation: true
