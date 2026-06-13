@@ -1,6 +1,6 @@
 ---
 name: grill-with-docs
-description: Grilling session that challenges your plan against the existing domain model, sharpens terminology, and updates documentation (CONTEXT.md, ADRs) inline as decisions crystallise. Use when user wants to stress-test a plan against their project's language and documented decisions.
+description: Grilling session that challenges your plan against the existing domain model and decisions recorded in AGENTS.md, sharpens terminology, and updates AGENTS.md inline as decisions crystallise. Use when the user wants to stress-test a plan against the project's language and documented decisions.
 ---
 
 <what-to-do>
@@ -17,45 +17,32 @@ If a question can be answered by exploring the codebase, explore the codebase in
 
 ## Domain awareness
 
-During codebase exploration, also look for existing documentation:
+During codebase exploration, look for the AGENTS.md hierarchy. Read the nearest AGENTS.md and every parent AGENTS.md up to the repo root before proposing changes.
 
 ### File structure
 
-Most repos have a single context:
+The relevant docs live in AGENTS.md files along the path from root to the work area:
 
 ```
 /
-├── CONTEXT.md
-├── docs/
-│   └── adr/
-│       ├── 0001-event-sourced-orders.md
-│       └── 0002-postgres-for-write-model.md
-└── src/
+├── AGENTS.md                       ← root DOX rail + monorepo contracts
+├── apps/
+│   └── invyte-new/
+│       └── AGENTS.md               ← app-specific language + decisions
+└── packages/
+    └── design-system/
+        └── AGENTS.md               ← package-specific contracts
 ```
 
-If a `CONTEXT-MAP.md` exists at the root, the repo has multiple contexts. The map points to where each one lives:
+AGENTS.md is the single durable contract. Domain language lives in its **Ubiquitous Language** section. Architectural decisions live in its **Architectural Decisions** section.
 
-```
-/
-├── CONTEXT-MAP.md
-├── docs/
-│   └── adr/                          ← system-wide decisions
-├── src/
-│   ├── ordering/
-│   │   ├── CONTEXT.md
-│   │   └── docs/adr/                 ← context-specific decisions
-│   └── billing/
-│       ├── CONTEXT.md
-│       └── docs/adr/
-```
-
-Create files lazily — only when you have something to write. If no `CONTEXT.md` exists, create one when the first term is resolved. If no `docs/adr/` exists, create it when the first ADR is needed.
+Create files lazily — only when you have something to write. If no AGENTS.md exists at the work area, create one when the first term or decision is resolved. If a child folder becomes a durable boundary, create a child AGENTS.md and add it to the parent's **Child DOX Index**.
 
 ## During the session
 
 ### Challenge against the glossary
 
-When the user uses a term that conflicts with the existing language in `CONTEXT.md`, call it out immediately. "Your glossary defines 'cancellation' as X, but you seem to mean Y — which is it?"
+When the user uses a term that conflicts with the **Ubiquitous Language** in the nearest AGENTS.md, call it out immediately. "Your AGENTS.md defines 'cancellation' as X, but you seem to mean Y — which is it?"
 
 ### Sharpen fuzzy language
 
@@ -69,20 +56,34 @@ When domain relationships are being discussed, stress-test them with specific sc
 
 When the user states how something works, check whether the code agrees. If you find a contradiction, surface it: "Your code cancels entire Orders, but you just said partial cancellation is possible — which is right?"
 
-### Update CONTEXT.md inline
+### Update AGENTS.md inline
 
-When a term is resolved, update `CONTEXT.md` right there. Don't batch these up — capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
+When a term is resolved, update the **Ubiquitous Language** section of the nearest AGENTS.md right there (format: [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md)). When a decision is resolved, update the **Architectural Decisions** section (format and global ADR numbering: [ADR-FORMAT.md](./ADR-FORMAT.md)). Don't batch these up — capture them as they happen.
 
-`CONTEXT.md` should be totally devoid of implementation details. Do not treat `CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
+Follow the AGENTS.md **Change Protocol** on every edit: read the DOX chain first, update the nearest owning AGENTS.md after, and keep the **Child DOX Index** current.
 
-### Offer ADRs sparingly
+### Offer architectural decisions sparingly
 
-Only offer to create an ADR when all three are true:
+Only add an entry to **Architectural Decisions** when all three are true:
 
 1. **Hard to reverse** — the cost of changing your mind later is meaningful
 2. **Surprising without context** — a future reader will wonder "why did they do it this way?"
 3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
 
-If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).
+If any of the three is missing, skip the entry.
+
+## AGENTS.md shape
+
+When creating or updating AGENTS.md, prefer this section order:
+
+1. **Purpose** — what this folder owns and why it exists
+2. **Ownership** — who/what is responsible, and what belongs here vs. parent/child
+3. **Change Protocol** — the self-documenting contract for reading and updating this doc
+4. **Local Contracts** — binding rules for this subtree
+5. **Ubiquitous Language** — canonical terms and "avoid" aliases (was CONTEXT.md)
+6. **Architectural Decisions** — inline ADR entries (was docs/adr/)
+7. **Work Guidance** — patterns, conventions, stack, commands, examples
+8. **Verification** — commands, checks, tests
+9. **Child DOX Index** — direct child AGENTS.md files
 
 </supporting-info>
