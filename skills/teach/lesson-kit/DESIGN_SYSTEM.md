@@ -85,6 +85,7 @@ Radii 11–14px (cards/diagrams), 5–9px (chips/buttons), 99px (bars). Borders 
 | Next | `a.next` / `.next.soon` | next link / unbuilt teaser |
 | Index row | `.list` + `.row` (+`.ref`) | landing rows |
 | Diagram examples | `.contract` / `.decode` / `.flow` / `.stack` | worked mechanistic diagrams (reference instance); build new ones per topic in the same language |
+| Interactive widget | `.viz` frame + `viz.js` (`data-viz="stepper"`) | step-through / interactive visualizations; reduced-motion-safe, theme-aware, keyboard-operable |
 
 ## Rules
 

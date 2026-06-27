@@ -63,6 +63,31 @@ semantic axis (pass/fail, before/after, three roles), map it to `--ok` / `--bad`
 `.flow`, `.stack`) — keep them as examples or build a new mechanistic diagram per concept in the same
 language. A decorative box with letters is not a diagram.
 
+## Interactive widgets
+
+For dynamic, interactive visualizations, include `viz.js` on the page and mark up a `.viz` figure.
+The kit ships a generic **stepper** (`data-viz="stepper"`): a step-through with play / step / reset
+controls, reduced-motion-safe, keyboard-operable.
+
+```html
+<figure class="viz" data-viz="stepper" aria-label="...">
+  <div class="viz-cap">caption</div>
+  <div class="viz-stage">
+    <div class="viz-step" data-note="explanation (may be HTML)">step content</div>
+    <div class="viz-step" data-note="...">...</div>
+  </div>
+  <div class="viz-controls"></div>
+  <div class="viz-note" aria-live="polite"></div>
+</figure>
+<script src="../assets/viz.js"></script>
+```
+
+Bespoke / canvas / SVG visualizations are per-lesson JS that the lesson includes. Read tokens via
+`getComputedStyle(document.documentElement).getPropertyValue('--accent')` so the drawing matches the
+theme; honor `prefers-reduced-motion` (render a final static state); give it keyboard controls and a
+static fallback. Anything app-grade (server, sockets, build, framework) belongs in the lab lane,
+embedded back into the lesson via `<iframe>`. See `styleguide.html` for the stepper rendered.
+
 ## Publish
 
 Publish the whole tree (`index.html`, `assets/`, `lessons/`, `reference/`) together; the pages depend

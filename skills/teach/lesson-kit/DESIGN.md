@@ -14,7 +14,8 @@ view is `styleguide.html`; setup is `README.md`. All values live in `base.css`.
 
 Pages are content-only. Everything shared lives in `assets/`: `base.css` (look), `manifest.js` (the
 lesson set — the only file edited to add a lesson), `nav.js` (builds rail + scroll-spy TOC + progress
-+ index from the manifest), `quiz.js` (interactive checks). No framework, no build; works on
++ index from the manifest), `quiz.js` (interactive checks), and `viz.js` (optional interactive
+widgets, included only by pages that use one). No framework, no build; works on
 `file://`. A JS manifest (not JSON) is used so it loads via `<script src>` without a server.
 
 Per-page wiring: `<aside class="rail" data-rail data-root="../" data-kind="lesson|reference">`;
@@ -49,7 +50,14 @@ bar; ≤680px compare/multi-column diagrams collapse and code wraps.
 Reach by role; never invent a new box style. Diagrams (one per concept, must carry real information),
 callouts distinct by role (`.rule` amber law / `.pitfall` red trap / `.good` green safe-rule),
 `.compare` ✗/✓ pairs, `.codecard`, `.tbl`, `.quiz[data-ok][data-no]`, `a.next` / `.next.soon`, index
-`.row`s. See `DESIGN_SYSTEM.md` for the full list and `styleguide.html` for renders.
+`.row`s, and interactive widgets (the `.viz` frame + `viz.js`, e.g. a reduced-motion-safe stepper).
+See `DESIGN_SYSTEM.md` for the full list and `styleguide.html` for renders.
+
+**Interactive visualizations.** Light, reusable widgets (steppers, timelines, toggles) live in the
+kit and mount by `data-viz` like `quiz.js`. Bespoke or canvas/SVG visualizations are per-lesson JS
+that the lesson includes; they read design tokens via `getComputedStyle` so they match the theme, and
+honor `prefers-reduced-motion` (render a final static state, no autoplay). Anything app-grade (needs a
+server, sockets, or a build) graduates to the lab lane and is embedded back via `<iframe>`.
 
 ## Motion · A11y · Print
 

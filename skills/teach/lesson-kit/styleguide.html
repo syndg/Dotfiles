@@ -203,6 +203,20 @@ Effect.promise(() =&gt; p)
       </div>
 
       <div class="gi">
+        <p class="gil">Interactive · stepper (.viz)</p>
+        <figure class="viz" data-viz="stepper" style="margin:0" aria-label="Stepper demo">
+          <div class="viz-cap">Step through a process</div>
+          <div class="viz-stage">
+            <div class="viz-step" data-note="<strong>Construct.</strong> Build the description. No work happens yet.">1 · construct — build a description</div>
+            <div class="viz-step" data-note="<strong>Compose.</strong> Add retries, timeouts, dependencies.">2 · compose — add behaviour</div>
+            <div class="viz-step" data-note="<strong>Run.</strong> The runtime executes; the side effect fires here.">3 · run — the side effect fires</div>
+          </div>
+          <div class="viz-controls"></div>
+          <div class="viz-note" aria-live="polite"></div>
+        </figure>
+      </div>
+
+      <div class="gi">
         <p class="gil">Next · link &amp; soon</p>
         <a class="next" href="index.html"><span class="go">→</span><span class="tag">Next · 0002</span><h3>Promise &amp; laziness</h3><p>Where laziness starts paying rent.</p></a>
         <div class="next soon"><span class="tag">Up next · 0004</span><h3>Typed failure</h3><p>Expected failures vs unexpected defects.</p></div>
@@ -222,5 +236,6 @@ Effect.promise(() =&gt; p)
   </main>
 
 <script src="quiz.js"></script>
+<script src="viz.js"></script>
 </body>
 </html>
