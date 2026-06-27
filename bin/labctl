@@ -1,0 +1,130 @@
+#!/usr/bin/env bash
+#
+# labctl — laptop-side wrapper to publish static learning artifacts to the
+# VPS-backed learn.syndg.dev infrastructure over SSH/rsync.
+#
+# The VPS (default alias: synclaw) is the canonical publishing host. It serves:
+#   ~/syndg-labs/static/<slug>/...  ->  https://learn.syndg.dev/<slug>/...
+#
+# This laptop wrapper hosts NOTHING locally and uses NO Cloudflare Tunnel.
+# It only copies files to the VPS and verifies the resulting public URL.
+
+set -euo pipefail
+
+# ---- configuration (override via env) -------------------------------------
+VPS_HOST="${LABCTL_VPS_HOST:-synclaw}"
+# Literal tilde kept on purpose: it is expanded by the REMOTE shell, not here.
+REMOTE_STATIC_ROOT="${LABCTL_REMOTE_STATIC_ROOT:-~/syndg-labs/static}"
+PUBLIC_BASE="${LABCTL_PUBLIC_BASE:-https://learn.syndg.dev}"
+PUBLIC_BASE="${PUBLIC_BASE%/}"   # normalize: strip any trailing slash
+
+# ---- helpers --------------------------------------------------------------
+err()  { printf 'labctl: error: %s\n' "$*" >&2; }
+die()  { err "$*"; exit 1; }
+info() { printf 'labctl: %s\n' "$*" >&2; }
+
+# Conservative slug validation. Also guards the rsync --delete target against
+# path traversal (a slug of '..' would point --delete at the parent dir).
+validate_slug() {
+  local slug="$1"
+  [[ -n "$slug" ]] || die "empty topic slug"
+  [[ "$slug" =~ ^[a-zA-Z0-9.-]+$ ]] || die "invalid slug '$slug' (allowed charset: [a-zA-Z0-9.-])"
+  case "$slug" in
+    .|..)  die "invalid slug '$slug'";;
+    -*)    die "slug may not start with '-'";;
+    *..*)  die "slug may not contain '..'";;
+  esac
+}
+
+verify_url() {
+  local url="$1" code
+  info "verifying $url"
+  code="$(curl -L --fail --max-time 30 -sS -o /dev/null -w '%{http_code}' "$url")" \
+    || die "public URL did not return success: $url"
+  info "OK (HTTP $code)"
+}
+
+# ---- commands -------------------------------------------------------------
+cmd_publish_static() {
+  local slug="${1:-}" path="${2:-}"
+  [[ -n "$slug" && -n "$path" ]] || die "usage: labctl publish-static <topic-slug> <path-to-html-or-directory>"
+  validate_slug "$slug"
+  [[ -e "$path" ]] || die "no such file or directory: $path"
+
+  local remote_dir="$REMOTE_STATIC_ROOT/$slug"
+  info "ensuring remote dir ${VPS_HOST}:${remote_dir}"
+  ssh "$VPS_HOST" "mkdir -p $remote_dir"
+
+  local url
+  if [[ -d "$path" ]]; then
+    # Mirror directory contents into the slug dir. --delete is scoped to this
+    # slug's own directory (validated above), never a broader path.
+    info "syncing directory contents -> ${VPS_HOST}:${remote_dir}/"
+    rsync -av --delete "${path%/}/" "${VPS_HOST}:${remote_dir}/"
+    url="$PUBLIC_BASE/$slug/"
+  else
+    local base; base="$(basename "$path")"
+    info "uploading file -> ${VPS_HOST}:${remote_dir}/${base}"
+    rsync -av "$path" "${VPS_HOST}:${remote_dir}/"
+    url="$PUBLIC_BASE/$slug/$base"
+  fi
+
+  verify_url "$url"
+  # Final deliverable: the public URL on stdout (everything else went to stderr).
+  printf '%s\n' "$url"
+}
+
+cmd_verify_static() {
+  local slug="${1:-}" filename="${2:-}"
+  [[ -n "$slug" && -n "$filename" ]] || die "usage: labctl verify-static <topic-slug> <filename>"
+  validate_slug "$slug"
+  local url="$PUBLIC_BASE/$slug/$filename"
+  verify_url "$url"
+  printf '%s\n' "$url"
+}
+
+cmd_help() {
+  cat <<EOF
+labctl — publish static learning artifacts to ${PUBLIC_BASE}
+         (copies to ${VPS_HOST} over SSH/rsync; nothing is hosted locally)
+
+USAGE
+  labctl publish-static <topic-slug> <path-to-html-or-directory>
+  labctl verify-static  <topic-slug> <filename>
+  labctl help
+
+BEHAVIOR
+  publish-static  Copies a file or directory to
+                    ${VPS_HOST}:${REMOTE_STATIC_ROOT}/<slug>/
+                  then verifies and prints the public URL.
+                    file       -> basename is preserved
+                    directory  -> contents mirrored (rsync --delete) into <slug>/
+  verify-static   curl -L --fail the public URL, then print it.
+  help            This message.
+
+SLUGS
+  Conservative charset only: [a-zA-Z0-9.-]
+  Rejected: '.', '..', anything containing '..', or a leading '-'.
+
+CONFIG (environment overrides)
+  LABCTL_VPS_HOST            SSH host alias       (default: synclaw)
+  LABCTL_REMOTE_STATIC_ROOT  remote static root  (default: ~/syndg-labs/static)
+  LABCTL_PUBLIC_BASE         public base URL      (default: https://learn.syndg.dev)
+
+NOTES
+  - Publishes to the VPS only. No local hosting, no Cloudflare Tunnel on the laptop.
+  - Topic index (index.html) management is left to the lesson workflow.
+EOF
+}
+
+main() {
+  local sub="${1:-help}"
+  case "$sub" in
+    publish-static) shift; cmd_publish_static "$@";;
+    verify-static)  shift; cmd_verify_static "$@";;
+    help|-h|--help) cmd_help;;
+    *) err "unknown command: $sub"; echo >&2; cmd_help >&2; exit 2;;
+  esac
+}
+
+main "$@"

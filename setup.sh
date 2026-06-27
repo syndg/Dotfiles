@@ -193,6 +193,34 @@ link_shared_skills() {
 }
 
 # ============================================
+# Personal bin scripts (symlinked into ~/bin)
+# ============================================
+
+link_bin_scripts() {
+    local bin_src="$DOTS_DIR/bin"
+
+    [ -d "$bin_src" ] || return
+
+    mkdir -p "$HOME/bin"
+
+    for src in "$bin_src"/*; do
+        [ -e "$src" ] || continue   # handles the no-match glob case
+        local name dest backup
+        name="$(basename "$src")"
+        dest="$HOME/bin/$name"
+        if [ -L "$dest" ]; then
+            rm -f "$dest"
+        elif [ -e "$dest" ]; then
+            backup="${dest}.backup.$(date +%Y%m%d%H%M%S)"
+            mv "$dest" "$backup"
+            warn "Moved existing $dest to $backup"
+        fi
+        ln -s "$src" "$dest"
+    done
+    log "Linked bin scripts into ~/bin"
+}
+
+# ============================================
 # Stow dotfiles
 # ============================================
 
@@ -242,6 +270,7 @@ main() {
     setup_nvim
     stow_packages
     [ "$PLATFORM" != "termux" ] && link_shared_skills
+    link_bin_scripts
     setup_termux_font
 
     echo

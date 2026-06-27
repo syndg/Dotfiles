@@ -46,7 +46,7 @@ Make opening a lesson as easy as possible — ideally a single CLI command the u
 
 For SynDG, generated lessons should be published by default unless he explicitly says not to. After publishing, verify the public URL returns successfully and browser-renders before reporting it. If publishing is intentionally skipped, say so clearly and keep the local file path easy to open.
 
-For SynDG, prefer surfacing visitable `syndg.dev` URLs when a lesson or demo is meant to be revisited in a browser. Use the publishing conventions in [references/syndg-learning-lab-publishing.md](./references/syndg-learning-lab-publishing.md): static lesson archives belong under `learn.syndg.dev`, while live interactive demos/apps belong under `*.lab.syndg.dev`. Do not report `localhost` as the final deliverable when a public URL was requested.
+For SynDG, prefer surfacing visitable `syndg.dev` URLs when a lesson or demo is meant to be revisited in a browser. Use the publishing conventions in [references/syndg-learning-lab-publishing.md](./references/syndg-learning-lab-publishing.md): static lesson archives belong under `learn.syndg.dev`, while live interactive demos/apps belong under `*.lab.syndg.dev`. Do not report `localhost` as the final deliverable when a public URL was requested. To publish a static lesson, run `labctl publish-static <topic-slug> <path>` — available on SynDG's laptop via Dotfiles `bin/labctl` (pushes to the VPS over SSH/rsync; it uploads, verifies the public URL, and prints it).
 
 ## The Mission
 
