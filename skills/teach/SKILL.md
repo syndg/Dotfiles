@@ -18,6 +18,8 @@ Treat the current directory as a teaching workspace. The state of their learning
 - `./lessons/*.html`: A directory of lessons. A **lesson** is a single, self-contained HTML output that teaches one tightly-scoped thing tied to the mission. This is the primary unit of teaching in this workspace.
 - `NOTES.md`: A scratchpad for you to jot down user preferences, or working notes.
 
+A workspace may also be organized into **sub-missions** — nested subdirectories, each a self-contained track of the same subject (its own `MISSION.md`, `lessons/`, `learning-records/`). See [Sub-missions](#sub-missions) for when and how to use them. If any sub-mission folders exist, resolve which track is active _before_ reading mission/records or numbering a new lesson.
+
 ## Philosophy
 
 To learn at a deep level, the user needs three things:
@@ -47,6 +49,30 @@ Every lesson should be tied into the mission - the reason that the user is inter
 If the user is unclear about the mission, or the `MISSION.md` is not populated, your first job should be to question the user on why they want to learn this.
 
 Failing to understand the mission will mean knowledge acquisition is not grounded in real-world goals. Lessons will feel too abstract. You will have no way of judging what the user should do next.
+
+## Sub-missions
+
+A single subject can have **parallel tracks** that share context but advance independently — e.g. a library's _usage_ alongside its _internals_, or a topic's _theory_ alongside its _practice_. When tracks are too related to be separate workspaces (they cross-reference constantly) but too independent to be one mission (each has its own pace and ZPD), nest each as a **sub-mission**: a subdirectory that is itself a self-contained teaching workspace. The structure and rules are defined in [MISSION-FORMAT.md](./MISSION-FORMAT.md#sub-missions).
+
+The critical operational consequence: **each sub-mission has its own `MISSION.md`, its own `lessons/`, and its own `learning-records/` with independent numbering and ZPD.** Treat the active sub-mission as your workspace for that session — read _its_ mission and records, and write the new lesson into _its_ `lessons/` with _its_ next number.
+
+### Resolving the active track
+
+Before teaching, when sub-missions exist, decide which track this session belongs to:
+
+1. **Explicit** — the user names it (`/teach internals: how fibers schedule`, or "teach me the internals of X"). Honor it.
+2. **Inferred** — the topic clearly belongs to one track (a "why does this work" / source question → an internals track; a "how do I use this" question → a usage track). Pick it, and state which track you chose.
+3. **Ambiguous** — if you genuinely cannot tell, ask. Don't silently default and write into the wrong track's numbering.
+
+### Creating a new sub-mission
+
+When the user wants to start a parallel track (or you spot that a stream of questions has become its own track), create the subdirectory with its own `MISSION.md` (interview for its _why_ just like a root mission), and add/update a top-level `README.md` indexing the tracks. Don't retroactively reshuffle existing root-level lessons into it; new tracks grow forward.
+
+### When NOT to use a sub-mission
+
+- The two things are unrelated → two workspaces, not one workspace with sub-missions.
+- The "track" is really just advanced material in the same arc → keep it in the main mission; deepen the ZPD instead.
+- You'd be creating a sub-mission with one lesson and no plans to grow it → premature; keep it flat until the track earns its own spine.
 
 ## Zone Of Proximal Development
 

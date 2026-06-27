@@ -24,7 +24,7 @@ Only include these when they add genuine value. Most records won't need them.
 
 ## Numbering
 
-Scan `./learning-records/` for the highest existing number and increment by one.
+Scan `./learning-records/` for the highest existing number and increment by one. When the active workspace is a **sub-mission** (see [MISSION-FORMAT.md](./MISSION-FORMAT.md#sub-missions)), `./` is that sub-mission's directory — each track numbers its records independently, so resolve the active track first.
 
 ## When to write a learning record
 
