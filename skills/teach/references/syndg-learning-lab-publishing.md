@@ -17,9 +17,28 @@ Examples:
 
 ## Publishing Decision
 
-1. If the artifact is a plain lesson/reference document, publish statically. Do not keep a live Node server running just to serve static HTML.
-2. If the artifact needs interactivity, APIs, WebSockets, hot reload, or a running process, publish it as a lab app.
-3. Return the final public URL, not just local file paths or localhost ports.
+1. First determine whether you are running on SynDG's VPS/publishing host or on another machine.
+2. If the artifact is a plain lesson/reference document, publish statically. Do not keep a live Node server running just to serve static HTML.
+3. If the artifact needs interactivity, APIs, WebSockets, hot reload, or a running process, publish it as a lab app.
+4. Return the final public URL, not just local file paths or localhost ports.
+
+## Host Awareness
+
+The `learn.syndg.dev` / `*.lab.syndg.dev` publishing infrastructure currently lives on SynDG's VPS, where `~/syndg-labs`, `~/bin/labctl`, and the Cloudflare Tunnel are available. SynDG's laptop may have this skill via Dotfiles, but it should not be assumed to have the publishing root, tunnel, or `labctl`.
+
+Before publishing, check for the publishing host by verifying the relevant paths/processes, for example:
+
+```bash
+test -d ~/syndg-labs/static && test -x ~/bin/labctl
+pgrep -af cloudflared || true
+```
+
+If the infra is missing:
+
+- Do **not** pretend the lesson was published.
+- Still create the durable local lesson/reference/learning-record artifacts.
+- Report that publishing requires the VPS/publishing host, or ask SynDG whether to SSH/sync to the VPS if that route is available.
+- Do not surface `localhost` as a substitute for `learn.syndg.dev`.
 
 ## Static Lesson Lane
 
