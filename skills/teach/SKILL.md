@@ -106,4 +106,17 @@ Glossaries, in particular, are an essential reference. Once one is created, it s
 
 ## `NOTES.md`
 
-The user will sometimes express preferences of how they want to be taught, or things you should keep in mind. This is the place to record those preferences, so you can refer back to them when designing lessons or working with the user.
+The user will sometimes express preferences for how they want to be taught, their learning style, or what makes a lesson click. Record those preferences in `NOTES.md` so future lessons can personalize the curriculum instead of rediscovering the learner every session.
+
+Use `NOTES.md` for durable teaching personalization such as:
+
+- preferred level of depth and pacing
+- analogies that work or do not work
+- preferred lesson structure
+- recurring confusions or distinctions that unlock understanding
+- domain context to use sparingly as examples
+- whether lessons should be published by default
+
+For SynDG-style technical lessons, capture preferences like: concise but deep, explicit mental models, “what is this lesson actually about?” framing, concrete TypeScript examples, exact type contracts, wrong-vs-right comparisons, sharp pitfalls, and minimal vague FP jargon.
+
+Do not use `NOTES.md` as a task log. Progress belongs in `learning-records/`; reusable concept summaries belong in `reference/`.

@@ -23,6 +23,17 @@ Take the source provided by the user (URL, file path, or pasted text). Then:
 
 After ingesting, report what pages were created or updated, and list the cross-links added (which existing pages now link to the new content).
 
+## Verification before commit
+
+Before committing an ingest, run a lightweight graph sanity check:
+
+- Scan all `wiki/**/*.md` wikilinks and verify every `[[target]]` resolves to an existing page stem (allow documented virtual links like `[[AGENTS]]` if the repo uses them).
+- For every newly created wiki page, list inbound links from existing pages; a new page with zero inbound links is not integrated.
+- Check `git diff --stat` and skim the diff for accidental edits outside `wiki/` or the intended `raw/` capture.
+- Commit and push only after `wiki/index.md` and `wiki/log.md` are updated and `git status --short --branch` is clean after push.
+
+A simple Python one-off is fine for the wikilink/inbound scan; do not turn this into a heavy test suite unless the repo already has one.
+
 ## Notes
 
 - Keep `wiki/` flat — the only allowed subdirectory is `wiki/sources/`.

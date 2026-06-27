@@ -10,9 +10,13 @@ Scans React codebases for security, performance, correctness, and architecture i
 
 ## After making React code changes:
 
-Run `npx react-doctor@latest --verbose --diff` and check the score did not regress.
+Run `npx react-doctor@latest --verbose --diff` (or `npx react-doctor@latest --verbose --scope changed` when the CLI warns that `--diff` is deprecated) and check the score did not regress.
 
-If the score dropped, fix the regressions before committing.
+If the score dropped, fix direct regressions before committing. Do not blindly chase broad warnings that merely reflect existing architecture or accepted local style (e.g. already-large components, many-related-`useState` component shape, known route redirects) unless they are introduced by the current change or cheap/safe to repair. Fix small, clear issues immediately — especially accessibility wiring like labels/controls, clickable static elements that should be real buttons, straightforward Next `<Image>` conversions plus host config, local hook/state cleanups, and whitespace/newline hygiene — then rerun lint/typecheck/doctor.
+
+For scoped feature cleanup, use the triage boundary in `references/scoped-feature-triage.md`: fix local low-risk correctness/accessibility/performance warnings, but explicitly defer giant-component or broad architecture warnings that would muddy the feature diff.
+
+For virtualized React lists, especially TanStack Virtual, use `references/tanstack-virtual-react-compiler.md`: React Compiler may emit non-fatal ref/memoization warnings even when lint exits 0. Fix real errors in your own code, but do not churn a correct virtualizer just to silence a compiler optimization warning; validate with tests, lint, typecheck, build, and changed-file doctor.
 
 ## For general cleanup or code improvement:
 
