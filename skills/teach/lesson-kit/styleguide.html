@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lesson Kit — Design System</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  /* styleguide-only layout; everything visual reuses edd.css tokens/components */
+  .sg{max-width:1100px;margin:0 auto;padding:60px 40px 100px}
+  .sg-top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .sg-top h1{margin:0 0 8px;font-size:34px;letter-spacing:-.022em}
+  .sg-top a{font:600 12px/1 var(--mono);color:var(--muted)}
+  .sg-lead{color:var(--muted);font-size:17px;max-width:72ch;margin:0}
+  .sgsec{margin-top:56px}
+  .sgsec>.lbl{font:700 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:0 0 16px;display:flex;align-items:center;gap:12px}
+  .sgsec>.lbl::after{content:"";height:1px;flex:1;background:var(--line-soft)}
+  .grp{margin-top:22px}
+  .grp>.gl{font:600 11px/1 var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+  .swgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:12px}
+  .sw{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--bg-2)}
+  .sw .chip{height:58px;display:grid;place-items:center;font:800 17px/1 var(--mono);border-bottom:1px solid var(--line)}
+  .sw .m{padding:9px 11px}
+  .sw .m b{display:block;font:600 12.5px/1.2 var(--mono);color:var(--ink)}
+  .sw .m code{display:block;font-size:10.5px;color:var(--faint);margin-top:3px}
+  .sw .m em{display:block;font-style:normal;font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.4}
+  .typrow{display:grid;grid-template-columns:130px 1fr;gap:18px;align-items:baseline;padding:14px 0;border-top:1px solid var(--line-soft)}
+  .typrow .tg{font:600 11px/1.4 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+  .gi{margin-top:26px}
+  .gi>.gil{font:600 11px/1 var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.06em;margin:0 0 9px}
+  .swatches-2{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+</style>
+</head>
+<body>
+  <main class="sg">
+    <div class="sg-top">
+      <div>
+        <h1>Design System</h1>
+      </div>
+      <a href="README.md">← Lesson Kit</a>
+    </div>
+    <p class="sg-lead">The living reference for the lesson-kit look — the default frontend for every teaching workspace. Tokens and components below are the real ones from <code style="font-family:var(--mono)">base.css</code>; this page renders them so the system is visible, not just described. Component examples use the Effect reference instance for content.</p>
+
+    <!-- ============ COLOR ============ -->
+    <section class="sgsec">
+      <p class="lbl">Color</p>
+
+      <div class="grp">
+        <p class="gl">Surfaces &amp; lines</p>
+        <div class="swgrid">
+          <div class="sw"><div class="chip" style="background:var(--bg)"></div><div class="m"><b>--bg</b><code>oklch(.160 .013 264)</code><em>page surface</em></div></div>
+          <div class="sw"><div class="chip" style="background:var(--bg-rail)"></div><div class="m"><b>--bg-rail</b><code>oklch(.186 .014 264)</code><em>left rail</em></div></div>
+          <div class="sw"><div class="chip" style="background:var(--bg-2)"></div><div class="m"><b>--bg-2</b><code>oklch(.205 .014 264)</code><em>raised panels</em></div></div>
+          <div class="sw"><div class="chip" style="background:var(--bg-code)"></div><div class="m"><b>--bg-code</b><code>oklch(.135 .012 264)</code><em>code wells</em></div></div>
+          <div class="sw"><div class="chip" style="background:var(--line)"></div><div class="m"><b>--line</b><code>oklch(.320 .020 264)</code><em>borders</em></div></div>
+          <div class="sw"><div class="chip" style="background:var(--line-soft)"></div><div class="m"><b>--line-soft</b><code>oklch(.255 .016 264)</code><em>hairlines</em></div></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <p class="gl">Text</p>
+        <div class="swgrid">
+          <div class="sw"><div class="chip" style="background:var(--ink);color:var(--bg)">Aa</div><div class="m"><b>--ink</b><code>oklch(.965 .006 264)</code><em>primary text</em></div></div>
+          <div class="sw"><div class="chip" style="background:var(--muted);color:var(--bg)">Aa</div><div class="m"><b>--muted</b><code>oklch(.765 .020 264)</code><em>body / secondary</em></div></div>
+          <div class="sw"><div class="chip" style="background:var(--faint);color:var(--bg)">Aa</div><div class="m"><b>--faint</b><code>oklch(.605 .022 264)</code><em>meta / labels</em></div></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <p class="gl">Accent — the one accent</p>
+        <div class="swgrid">
+          <div class="sw"><div class="chip" style="background:var(--accent);color:var(--on-accent)">●</div><div class="m"><b>--accent</b><code>oklch(.835 .130 79)</code><em>links, active, focus, highlights</em></div></div>
+          <div class="sw"><div class="chip" style="background:var(--accent-lo)"></div><div class="m"><b>--accent-lo</b><code>amber / .13</code><em>active-nav bg, selection</em></div></div>
+          <div class="sw"><div class="chip" style="background:var(--on-accent)"></div><div class="m"><b>--on-accent</b><code>oklch(.205 .030 79)</code><em>text on amber</em></div></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <p class="gl">Meaning — load-bearing, not decorative</p>
+        <div class="swgrid">
+          <div class="sw"><div class="chip" style="background:var(--ok);color:var(--bg)">A</div><div class="m"><b>--ok · .t-a</b><code>oklch(.800 .150 152)</code><em>A success / “right”</em></div></div>
+          <div class="sw"><div class="chip" style="background:var(--bad);color:var(--bg)">E</div><div class="m"><b>--bad · .t-e</b><code>oklch(.725 .165 25)</code><em>E error / “wrong”</em></div></div>
+          <div class="sw"><div class="chip" style="background:var(--accent);color:var(--on-accent)">R</div><div class="m"><b>--accent · .t-r</b><code>amber</code><em>R requirements</em></div></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <p class="gl">Code syntax tokens</p>
+        <div class="swatches-2">
+          <div class="sw"><div class="chip" style="background:var(--kw);color:var(--bg)">.blue</div><div class="m"><b>keyword</b><code>oklch(.800 .090 300)</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--str);color:var(--bg)">.green</div><div class="m"><b>string</b><code>oklch(.830 .120 150)</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--accent);color:var(--on-accent)">.yellow</div><div class="m"><b>literal</b><code>amber</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--typ);color:var(--bg)">.purple</div><div class="m"><b>type</b><code>oklch(.800 .100 245)</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--faint);color:var(--bg)">.com</div><div class="m"><b>comment</b><code>--faint italic</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--bad);color:var(--bg)">.red</div><div class="m"><b>error</b><code>--bad</code></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TYPOGRAPHY ============ -->
+    <section class="sgsec">
+      <p class="lbl">Typography</p>
+      <div class="typrow"><span class="tg">h1 · 33/680</span><h1 style="margin:0">The type contract</h1></div>
+      <div class="typrow"><span class="tg">h2 · 22/660</span><div class="h2" style="margin:0"><span class="k">02</span><h2>The value is a description</h2></div></div>
+      <div class="typrow"><span class="tg">lead · 18.5</span><p class="lead" style="max-width:none">An Effect value is a <strong>lazy, typed description of work</strong>.</p></div>
+      <div class="typrow"><span class="tg">body · 16.5</span><p style="margin:0;color:var(--muted);max-width:none">Until the runtime executes it, <code style="background:var(--bg-2);border:1px solid var(--line-soft);padding:.06em .38em;border-radius:5px;color:var(--ink);font-size:.9em">program</code> is an inert plan you can inspect and compose.</p></div>
+      <div class="typrow"><span class="tg">mono · code</span><div style="font-family:var(--mono);font-size:13.5px;color:var(--ink)"><span style="color:var(--kw)">const</span> program = Effect.succeed(<span style="color:var(--accent)">42</span>)</div></div>
+    </section>
+
+    <!-- ============ COMPONENTS ============ -->
+    <section class="sgsec">
+      <p class="lbl">Components</p>
+
+      <div class="gi">
+        <p class="gil">Eyebrow</p>
+        <p class="eyebrow" style="margin:0"><span class="num">0001</span> The type contract</p>
+      </div>
+
+      <div class="gi">
+        <p class="gil">Callouts — distinct by role</p>
+        <div class="callout rule"><span class="tag">The rule</span><p><code>Effect&lt;A, E, R&gt;</code> means: requires <span class="t-r">R</span>, can fail with <span class="t-e">E</span>, can succeed with <span class="t-a">A</span>.</p></div>
+        <div class="callout pitfall"><span class="tag">Pitfall</span><p>Do not mentally translate Effect to “better Promise.” It is a typed executable plan.</p></div>
+        <div class="callout good"><span class="tag">Good rule</span><p>If it can fail, need a service, retry, time out, or be traced, keep it an <code>Effect</code>.</p></div>
+      </div>
+
+      <div class="gi">
+        <p class="gil">Wrong / right</p>
+        <div class="compare">
+          <div class="pane bad"><div class="cap"><span class="m"></span> trap</div><pre><code><span class="blue">const</span> p = fetch(url)
+Effect.promise(() =&gt; p)
+<span class="com">// already started</span></code></pre></div>
+          <div class="pane good"><div class="cap"><span class="m"></span> correct</div><pre><code>Effect.promise(() =&gt; fetch(url))
+<span class="com">// fires only on run</span></code></pre></div>
+        </div>
+      </div>
+
+      <div class="gi">
+        <p class="gil">Code card</p>
+        <div class="codecard"><div class="cap">type</div><pre><code><span class="purple">Effect</span>&lt;<span class="t-a">Order</span>, <span class="t-e">PaymentError</span>, <span class="t-r">PaymentGateway</span>&gt;</code></pre></div>
+      </div>
+
+      <div class="gi">
+        <p class="gil">Diagram · contract</p>
+        <figure class="contract" style="margin:0">
+          <code class="contract-sig">Effect&lt;<span class="t-a">A</span>, <span class="t-e">E</span>, <span class="t-r">R</span>&gt;</code>
+          <dl class="contract-rows">
+            <div class="crow a"><dt>A</dt><dd><b class="t-a">Success</b><span>the value produced if it completes</span></dd></div>
+            <div class="crow e"><dt>E</dt><dd><b class="t-e">Error</b><span>the typed failure channel</span></dd></div>
+            <div class="crow r"><dt>R</dt><dd><b class="t-r">Requirements</b><span>services it needs before running</span></dd></div>
+          </dl>
+        </figure>
+      </div>
+
+      <div class="gi">
+        <p class="gil">Diagram · lifecycle</p>
+        <figure class="flow" style="margin:0">
+          <div class="flow-cap">Where does the work start?</div>
+          <div class="flow-track">
+            <div class="stage"><div class="sn">1 · construct</div><b>Build a description</b><p>No work happens.</p></div>
+            <div class="stage"><div class="sn">2 · compose</div><b>Add behaviour</b><p>Retries, timeouts, deps.</p></div>
+            <div class="stage fire"><div class="sn">3 · run</div><b>Runtime executes</b><p>Only at the edge.</p></div>
+          </div>
+          <div class="flow-fire"><span class="bolt">↯</span> The side effect fires only at <b>run</b>.</div>
+        </figure>
+      </div>
+
+      <div class="gi">
+        <p class="gil">Diagram · stacking</p>
+        <figure class="stack" style="margin:0">
+          <div class="stack-cap">What the outer Effect collects</div>
+          <div class="stack-scroll">
+            <div class="srow head"><span>each yield*</span><span class="col-a">A · success</span><span class="col-e">E · error</span><span class="col-r">R · needs</span></div>
+            <div class="srow"><span class="expr"><span class="kw">yield*</span> getUser(id)</span><span class="col-a">User</span><span class="col-e">UserError</span><span class="col-r">UserRepo</span></div>
+          </div>
+          <div class="stotal"><span class="lbl">outer type</span><code>Effect&lt;<span class="t-p">string</span>, <span class="t-e">UserError</span>, <span class="t-r">UserRepo</span>&gt;</code></div>
+        </figure>
+      </div>
+
+      <div class="gi">
+        <p class="gil">Table</p>
+        <div class="tbl"><table>
+          <thead><tr><th>Slot</th><th>What happens at <code>yield*</code></th></tr></thead>
+          <tbody>
+            <tr><td class="key a">A</td><td class="d"><b>Success</b> becomes a local variable.</td></tr>
+            <tr><td class="key e">E</td><td class="d"><b>Failure</b> bubbles into the outer error union.</td></tr>
+            <tr><td class="key r">R</td><td class="d"><b>Requirement</b> bubbles into the outer requirement union.</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+
+      <div class="gi">
+        <p class="gil">Quiz (interactive)</p>
+        <div class="quiz"
+             data-ok="<strong>Yes.</strong> Requirement, failure, success."
+             data-no="<strong>Not quite.</strong> requires R, can fail with E, can succeed with A.">
+          <p class="q">What does <code>Effect&lt;Order, PaymentError, PaymentGateway&gt;</code> mean?</p>
+          <div class="opts" role="group" aria-label="Answer options">
+            <button data-answer="wrong"><span class="key">A</span><span>An Order that might contain an error.</span></button>
+            <button data-answer="correct"><span class="key">B</span><span>Needs PaymentGateway, may fail with PaymentError, may succeed with Order.</span></button>
+          </div>
+          <p class="feedback" aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="gi">
+        <p class="gil">Next · link &amp; soon</p>
+        <a class="next" href="index.html"><span class="go">→</span><span class="tag">Next · 0002</span><h3>Promise &amp; laziness</h3><p>Where laziness starts paying rent.</p></a>
+        <div class="next soon"><span class="tag">Up next · 0004</span><h3>Typed failure</h3><p>Expected failures vs unexpected defects.</p></div>
+      </div>
+
+      <div class="gi">
+        <p class="gil">Index row</p>
+        <div class="list">
+          <a class="row" href="index.html"><span class="rn">0003</span><span class="rbody"><b>gen &amp; yield*</b><span>Linear-looking code that keeps the channels alive.</span></span><span class="rgo">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <footer style="margin-top:54px;padding-top:22px;border-top:1px solid var(--line-soft);color:var(--faint);font:500 12.5px/1.6 var(--mono)">
+      <b style="color:var(--muted);font-weight:600">Lesson Kit</b> · the default teaching frontend. Spec: DESIGN.md · tokens: DESIGN_SYSTEM.md · usage: README.md.
+    </footer>
+  </main>
+
+<script src="quiz.js"></script>
+</body>
+</html>

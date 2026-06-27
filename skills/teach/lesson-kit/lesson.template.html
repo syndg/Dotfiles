@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- LESSON TEMPLATE — to add a lesson:
+     1. Copy to <workspace>/lessons/NNNN-slug.html and fill the {{...}} below.
+     2. Add ONE entry to <workspace>/assets/manifest.js. The rail, index,
+        progress, and scroll-spy TOC then build themselves on every page.
+     Shared, vanilla: assets/base.css · nav.js · quiz.js. See lesson-kit/README.md. -->
+<title>{{Workspace}} · {{NN}} — {{LESSON TITLE}}</title>
+<link rel="stylesheet" href="../assets/base.css">
+</head>
+<body>
+<div class="app">
+  <!-- rail builds itself from the manifest. kind = "lesson" (progress) or "reference" (print button) -->
+  <aside class="rail" data-rail data-root="../" data-kind="lesson"></aside>
+
+  <div class="main">
+    <div class="col">
+      <header>
+        <p class="eyebrow"><span class="num">{{NNNN}}</span> {{Lesson label}}</p>
+        <h1>{{Headline — a committed claim, not a topic name.}}</h1>
+        <p class="lead">{{One or two sentences. The core idea in plain words.}}</p>
+
+        <!-- DIAGRAM (optional but encouraged): build ONE that carries real information about the
+             mechanism, in the design language. See lesson-kit/styleguide.html for worked examples
+             (.contract / .flow / .stack patterns). A decorative box with letters is not a diagram. -->
+      </header>
+
+      <main>
+        <!-- section id + data-toc feed the auto-generated "On this page" TOC -->
+        <section id="one" data-toc="{{short label}}">
+          <div class="h2"><span class="k">01</span><h2>{{Section heading}}</h2></div>
+          <div class="callout rule"><span class="tag">The rule</span><p>{{the one thing to remember}}</p></div>
+          <p>{{prose spine}}</p>
+          <div class="compare">
+            <div class="pane bad"><div class="cap"><span class="m"></span> {{wrong}}</div><pre><code>{{...}}</code></pre></div>
+            <div class="pane good"><div class="cap"><span class="m"></span> {{right}}</div><pre><code>{{...}}</code></pre></div>
+          </div>
+        </section>
+
+        <section id="two" data-toc="{{short label}}">
+          <div class="h2"><span class="k">02</span><h2>{{Section heading}}</h2></div>
+          <p>{{prose}}</p>
+          <div class="codecard"><div class="cap">{{label}}</div><pre><code>{{...}}</code></pre></div>
+          <div class="callout pitfall"><span class="tag">Pitfall</span><p>{{what breaks and why}}</p></div>
+        </section>
+
+        <section id="check" data-toc="Quick check">
+          <div class="h2"><span class="k">03</span><h2>Quick check</h2></div>
+          <p>{{question setup}}</p>
+          <div class="quiz"
+               data-ok="<strong>Yes.</strong> {{why it is right}}"
+               data-no="<strong>Not quite.</strong> {{the corrective}}">
+            <p class="q">{{question}}</p>
+            <div class="opts" role="group" aria-label="Answer options">
+              <button data-answer="wrong"><span class="key">A</span><span>{{option}}</span></button>
+              <button data-answer="correct"><span class="key">B</span><span>{{correct option}}</span></button>
+              <button data-answer="wrong"><span class="key">C</span><span>{{option}}</span></button>
+            </div>
+            <p class="feedback" aria-live="polite"></p>
+          </div>
+        </section>
+
+        <a class="next" href="{{next-slug}}.html"><span class="go">→</span><span class="tag">Next · {{NNNN}}</span><h3>{{next title}}</h3><p>{{one-line teaser}}</p></a>
+        <!-- or, if the next lesson does not exist yet:
+        <div class="next soon"><span class="tag">Up next · {{NNNN}}</span><h3>{{title}}</h3><p>{{teaser}}</p></div> -->
+
+        <footer><b>Sources</b> · {{citations}}.</footer>
+      </main>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/manifest.js"></script>
+<script src="../assets/nav.js"></script>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

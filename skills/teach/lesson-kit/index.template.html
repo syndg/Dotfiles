@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- INDEX TEMPLATE — copy to <workspace>/index.html. The hero is authored; the
+     lesson + reference rows render from assets/manifest.js via nav.js. -->
+<title>{{Workspace title}} — {{track label}}</title>
+<link rel="stylesheet" href="assets/base.css">
+</head>
+<body>
+  <main class="wrap">
+    <p class="kicker"><span class="dot"></span> {{Workspace title}} · {{track label}}</p>
+    <h1 class="hero-h1">{{A committed one-line claim about the subject.}}</h1>
+    <p class="hero-lead">{{One or two sentences on what this track teaches and how it is meant to be used.}}</p>
+
+    <!-- Optional identity block: a small signature/motif for the subject, e.g.
+    <div class="sig"><code>...</code><div class="legend"><span class="t-a">...</span></div></div> -->
+
+    <section class="sec">
+      <div class="sec-h"><h2>Lessons</h2><span class="meta" data-count="lessons"></span></div>
+      <div class="list" data-list="lessons" data-root=""></div>
+    </section>
+
+    <section class="sec">
+      <div class="sec-h"><h2>Reference</h2><span class="meta">print-ready</span></div>
+      <div class="list" data-list="reference" data-root=""></div>
+    </section>
+
+    <footer style="margin-top:54px;padding-top:22px;border-top:1px solid var(--line-soft);color:var(--faint);font:500 13px/1.6 var(--mono)">
+      <b style="color:var(--muted);font-weight:600">{{Workspace title}}</b> · {{closing line}}.
+    </footer>
+  </main>
+
+<script src="assets/manifest.js"></script>
+<script src="assets/nav.js"></script>
+</body>
+</html>

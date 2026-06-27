@@ -8,6 +8,12 @@ This is a *house reference*, not a mandate to over-build. A one-off lesson can b
 self-contained HTML file. Reach for the shared-asset site once a workspace has several lessons and
 the duplication starts to hurt.
 
+**The kit is real, not a sketch.** The shared-asset system is implemented in
+[`lesson-kit/`](lesson-kit/): `base.css`, `nav.js`, `quiz.js`, `manifest.template.js`, the lesson and
+index templates, a living `styleguide.html`, and `DESIGN.md` / `DESIGN_SYSTEM.md`. For mode B, **copy
+the kit into the workspace** (see [`lesson-kit/README.md`](lesson-kit/README.md)) rather than
+hand-writing CSS or nav. `effect-deep-dive` is the reference instance.
+
 ## Two delivery modes
 
 **A. Self-contained single file** — one `.html` with inline `<style>` and `<script>`. Simplest,
@@ -19,17 +25,17 @@ entry, not an edit to every page:
 
 ```
 workspace/<track>/
-  index.html                 # landing: hero + auto-rendered lesson list
+  index.html                 # landing: hero + auto-rendered lesson list  (from lesson-kit/index.template.html)
   assets/
-    site.css                 # the whole stylesheet (single source of truth for the look)
-    manifest.js              # window.SITE = { lessons:[...], reference:[...] }  ← the only file you edit to add a lesson
-    nav.js                   # builds rail + on-this-page TOC + scroll-spy + progress + index, from the manifest
-    quiz.js                  # wires interactive checks generically (reads data-* for feedback)
+    base.css                 # the whole stylesheet               (copied from lesson-kit/)
+    manifest.js              # window.LESSONS = { lessons:[...], reference:[...] }  ← the only file you edit to add a lesson
+    nav.js                   # builds rail + TOC + scroll-spy + progress + index   (copied from lesson-kit/)
+    quiz.js                  # wires interactive checks                            (copied from lesson-kit/)
   lessons/NNNN-slug.html     # content only: links assets, leaves the rail empty for nav.js to fill
   reference/*.html
 ```
 
-Each page is content-only: `<link rel="stylesheet" href="../assets/site.css">`, an empty
+Each page is content-only: `<link rel="stylesheet" href="../assets/base.css">`, an empty
 `<aside class="rail" data-rail data-root="../">`, the content, then the three `<script>`s.
 
 **Why a JS manifest, not JSON:** `fetch()` is blocked on `file://` in Chrome. Load the manifest as a
