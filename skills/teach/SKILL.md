@@ -40,7 +40,13 @@ A lesson should be **beautiful** — clean, readable typography and layout — s
 
 The lesson should teach ONE THING only. It should be completable very quickly - but give the user a tangible win that they can build on. It should be directly tied to the mission, and should be in the user's zone of proximal development.
 
+When the user asks to move to the next lesson, says "let's go", or otherwise advances the curriculum, do not stop at a conversational explanation. Follow the durable workspace workflow: create/update the lesson HTML in `./lessons/`, update `./learning-records/`, publish/verify when requested or when the workspace convention calls for a URL, then report the artifact. Load [references/durable-lesson-workflow.md](./references/durable-lesson-workflow.md) for the exact checklist and pitfall.
+
 Make opening a lesson as easy as possible — ideally a single CLI command the user can run to open the HTML file in their browser.
+
+For SynDG, generated lessons should be published by default unless he explicitly says not to. After publishing, verify the public URL returns successfully and browser-renders before reporting it. If publishing is intentionally skipped, say so clearly and keep the local file path easy to open.
+
+For SynDG, prefer surfacing visitable `syndg.dev` URLs when a lesson or demo is meant to be revisited in a browser. Use the publishing conventions in [references/syndg-learning-lab-publishing.md](./references/syndg-learning-lab-publishing.md): static lesson archives belong under `learn.syndg.dev`, while live interactive demos/apps belong under `*.lab.syndg.dev`. Do not report `localhost` as the final deliverable when a public URL was requested.
 
 ## The Mission
 
@@ -57,7 +63,6 @@ A single subject can have **parallel tracks** that share context but advance ind
 The critical operational consequence: **each sub-mission has its own `MISSION.md`, its own `lessons/`, and its own `learning-records/` with independent numbering and ZPD.** Treat the active sub-mission as your workspace for that session — read _its_ mission and records, and write the new lesson into _its_ `lessons/` with _its_ next number.
 
 ### Resolving the active track
-
 Before teaching, when sub-missions exist, decide which track this session belongs to:
 
 1. **Explicit** — the user names it (`/teach internals: how fibers schedule`, or "teach me the internals of X"). Honor it.
