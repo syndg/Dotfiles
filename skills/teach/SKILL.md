@@ -46,6 +46,8 @@ The shared-asset system is **prebuilt and ready to copy** in [lesson-kit/](./les
 
 A lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review.
 
+**Mobile-first is mandatory.** These pages are re-read on a phone as much as a laptop. Design and verify at ~375–500px first, then enhance up: no page-level horizontal scroll at any width, every diagram has a small-screen form (stack or shrink+wrap, never bleed off the edge), padding tightens on phones, and the nav is the off-canvas drawer the kit ships. A lesson that only looks right at desktop width is not finished. See [lesson-kit/DESIGN.md](./lesson-kit/DESIGN.md) › Responsive.
+
 The lesson should teach ONE THING only. It should be completable very quickly - but give the user a tangible win that they can build on. It should be directly tied to the mission, and should be in the user's zone of proximal development.
 
 When the user asks to move to the next lesson, says "let's go", or otherwise advances the curriculum, do not stop at a conversational explanation. Follow the durable workspace workflow: create/update the lesson HTML in `./lessons/`, update `./learning-records/`, publish/verify when requested or when the workspace convention calls for a URL, then report the artifact. Load [references/durable-lesson-workflow.md](./references/durable-lesson-workflow.md) for the exact checklist and pitfall.

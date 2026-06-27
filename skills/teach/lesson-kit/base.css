@@ -36,8 +36,13 @@ code,kbd,pre{font-family:var(--mono)}
 .app{display:grid;grid-template-columns:264px minmax(0,1fr);min-height:100vh}
 
 /* ---------- left rail ---------- */
-.rail{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--bg-rail);border-right:1px solid var(--line-soft);padding:22px 18px 26px;display:flex;flex-direction:column;gap:22px}
-.brand{display:flex;flex-direction:column;gap:3px;color:inherit;text-decoration:none;border-radius:7px;transition:opacity .15s ease}
+.rail{position:sticky;top:0;height:100vh;overflow:hidden;background:var(--bg-rail);border-right:1px solid var(--line-soft);padding:22px 18px 26px;display:flex;flex-direction:column;gap:22px}
+/* the page list scrolls; brand above and TOC/progress below stay pinned */
+.railnav{flex:0 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:22px;margin-right:-8px;padding-right:8px;scrollbar-width:thin;scrollbar-color:var(--line-soft) transparent}
+.railnav::-webkit-scrollbar{width:8px}
+.railnav::-webkit-scrollbar-thumb{background:var(--line-soft);border-radius:99px}
+.railnav::-webkit-scrollbar-track{background:transparent}
+.brand{flex:none;display:flex;flex-direction:column;gap:3px;color:inherit;text-decoration:none;border-radius:7px;transition:opacity .15s ease}
 a.brand:hover{opacity:.82}
 .brand b{font-size:14px;letter-spacing:-.01em}
 .brand span{font:600 11px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
@@ -48,19 +53,27 @@ a.brand:hover{opacity:.82}
 .navlink:hover{background:color-mix(in oklch,var(--bg-2),transparent 30%);color:var(--ink)}
 .navlink[aria-current="page"]{background:var(--accent-lo);color:var(--ink)}
 .navlink[aria-current="page"] .ix{color:var(--accent)}
-.rail hr{border:0;border-top:1px solid var(--line-soft);margin:0}
-.toc{display:flex;flex-direction:column;gap:1px}
+.rail hr{flex:none;border:0;border-top:1px solid var(--line-soft);margin:0}
+.toc{flex:none;display:flex;flex-direction:column;gap:1px}
 .toc a{display:flex;gap:10px;align-items:baseline;padding:6px 9px 6px 10px;border-radius:6px;color:var(--faint);font-size:13px;transition:color .15s ease}
 .toc a::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--line);flex:none;transform:translateY(-2px);transition:background .15s ease}
 .toc a:hover{color:var(--muted)}
 .toc a.active{color:var(--ink)}
 .toc a.active::before{background:var(--accent)}
-.progress{margin-top:auto;display:flex;flex-direction:column;gap:8px}
+.progress{flex:none;margin-top:auto;display:flex;flex-direction:column;gap:8px}
 .progress .lbl{font:600 11px/1 var(--mono);letter-spacing:.04em;color:var(--faint);display:flex;justify-content:space-between}
 .bar{height:4px;border-radius:99px;background:var(--bg-code);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
-.printbtn{margin-top:auto;font:inherit;font-size:13px;color:var(--muted);background:var(--bg-code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center;transition:border-color .15s ease,color .15s ease}
+.printbtn{flex:none;margin-top:auto;font:inherit;font-size:13px;color:var(--muted);background:var(--bg-code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;justify-content:center;transition:border-color .15s ease,color .15s ease}
 .printbtn:hover{border-color:var(--accent);color:var(--ink)}
+
+/* ---------- mobile chrome: top bar + drawer scrim (hidden on desktop) ---------- */
+.topbar{display:none;position:fixed;top:0;left:0;right:0;height:52px;align-items:center;gap:12px;padding:0 12px 0 16px;background:var(--bg-rail);border-bottom:1px solid var(--line-soft);z-index:50}
+.topbar .brand{flex:1 1 auto}
+.navtoggle{flex:none;width:38px;height:38px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--bg-2);color:var(--ink);cursor:pointer;transition:border-color .15s ease}
+.navtoggle:hover{border-color:var(--accent)}
+.navtoggle svg{width:18px;height:18px}
+.scrim{position:fixed;inset:0;background:oklch(0.12 0.01 264 / .55);opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease;z-index:55}
 
 /* ---------- reading column ---------- */
 .main{min-width:0}
@@ -251,28 +264,71 @@ footer b{color:var(--muted);font-weight:600}
 /* ---------- responsive ---------- */
 @media (max-width:900px){
   .app{grid-template-columns:1fr}
-  .rail{position:sticky;top:0;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 18px;padding:11px 16px;z-index:20}
-  .rail .grouplabel,.toc,.progress,.rail hr{display:none}
-  .rail .printbtn{margin:0}
-  .brand{flex:1 1 auto}
-  .rail nav{flex-direction:row;flex-wrap:wrap;gap:4px}
-  .navlink{padding:6px 10px}
-  .col{padding:36px 24px 80px}
-  section{scroll-margin-top:84px}
+  .topbar{display:flex}
+  .scrim{display:block}
+  .main{padding-top:52px}
+  /* the rail becomes a left off-canvas drawer (shadcn Sheet style); keeps its
+     full vertical layout, so the page list still scrolls and the TOC stays. */
+  .rail{position:fixed;top:0;left:0;height:100dvh;width:min(86vw,330px);overflow:hidden;
+        transform:translateX(-100%);transition:transform .28s cubic-bezier(.22,1,.36,1);
+        border-right:1px solid var(--line);box-shadow:18px 0 50px -28px oklch(0 0 0 / .8);z-index:60}
+  body.nav-open .rail{transform:none}
+  body.nav-open .scrim{opacity:1;visibility:visible}
+  .col{padding:34px 22px 80px}
+  section{scroll-margin-top:72px}
+}
+@media (max-width:900px) and (prefers-reduced-motion:reduce){
+  .rail{transition:none}
 }
 @media (max-width:680px){
   .compare,.flow-track{grid-template-columns:1fr}
   h1{font-size:26px}
+  .lead{font-size:17.5px}
+  .h2 h2{font-size:20px}
   .col{padding:30px 18px 70px}
   pre{white-space:pre-wrap;word-break:break-word}
   .decode dl div{grid-template-columns:1fr}
   .decode dt{text-align:left}
+  .flow-fire{flex-wrap:wrap;row-gap:4px}
+  .contract-sig{font-size:22px}
 }
+/* phone tier: tighten oversized desktop padding, scale display type, and make
+   wide tabular diagrams FIT the screen (shrink + wrap) rather than scroll off. */
 @media (max-width:560px){
-  .wrap{padding:52px 20px 72px}
-  .hero-h1{font-size:31px}
-  .hero-lead{font-size:17px}
-  .row{padding:16px 16px;gap:14px}
+  .col{padding:26px 15px 64px}
+  section{padding-top:38px}
+  h1{font-size:23.5px}
+  section p,.callout p{font-size:15.5px}
+  .contract-sig{padding:18px 16px;font-size:19px;white-space:normal}
+  .crow{padding:13px 16px;grid-template-columns:34px 1fr;gap:13px}
+  .crow dt{width:34px;height:34px;font-size:15px}
+  .decode-sig{padding:14px 16px;font-size:15px}
+  .decode dl div{padding:11px 16px}
+  .flow-cap,.stack-cap{padding:11px 15px}
+  .stage{padding:14px 16px}
+  .flow-fire{padding:12px 16px}
+  .srow{grid-template-columns:minmax(96px,1.3fr) repeat(3,minmax(46px,1fr));gap:9px;padding:11px 15px;font-size:11.5px;white-space:normal}
+  .srow.head{font-size:9.5px;letter-spacing:.04em}
+  .srow .expr{word-break:break-word;overflow-wrap:anywhere}
+  .stotal{padding:13px 15px}
+  .stotal code{white-space:normal;word-break:break-word}
+  .callout{padding:14px 15px}
+  .codecard .cap,.pane>.cap{padding-left:14px;padding-right:14px}
+  .tbl th,.tbl td{padding:11px 14px;font-size:14px}
+  .tbl td.key{width:auto}
+  .tbl td code,.row .rbody span code{word-break:break-word}
+  .quiz{padding:16px 15px}
+  .opts button{padding:12px 13px;font-size:14px}
+  .next{padding:16px 16px}
+  .viz-cap,.viz-note{padding-left:15px;padding-right:15px}
+  .viz-stage{padding:14px 15px}
+  .viz-controls{padding:11px 15px}
+  .wrap{padding:48px 18px 68px}
+  .hero-h1{font-size:29px}
+  .hero-lead{font-size:16.5px}
+  .row{padding:15px 15px;gap:13px}
+  .sig{padding:12px 14px}
+  .sig code{font-size:16px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 

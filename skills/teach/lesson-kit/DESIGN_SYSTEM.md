@@ -66,8 +66,19 @@ System sans; mono `"SF Mono", ui-monospace, ...`. Fixed rem scale:
 
 ## Spacing & radii
 
-`.col` max 1000px, padding `62px 64px 100px` (mobile `36/24`, `30/18`). Section rhythm `46px` top.
-Radii 11–14px (cards/diagrams), 5–9px (chips/buttons), 99px (bars). Borders 1px; no thick side-stripes.
+`.col` max 1000px, padding `62px 64px 100px`, tightening down the breakpoints to `30/18` (≤680) and
+`26/15` (≤560 phone tier). Section rhythm `46px` top (`38px` on phone). Radii 11–14px (cards/diagrams),
+5–9px (chips/buttons), 99px (bars). Borders 1px; no thick side-stripes.
+
+## Breakpoints (mobile-first)
+
+Verify a lesson at ~375–500px first; no page-level horizontal scroll at any width.
+
+| Width | What changes |
+|---|---|
+| **≤900px** | rail → left off-canvas **drawer** (hamburger in slim top bar, scrim, Esc/scrim/link/resize to close) |
+| **≤680px** | `.compare` + `.flow-track` collapse to 1 column; `pre` wraps; `.decode` rows stack; `.flow-fire` wraps |
+| **≤560px** | phone tier: padding tightens (~14–16px), display type scales down, `.srow` stacking table shrinks + wraps to fit (no horizontal scroll) |
 
 ## Component library
 

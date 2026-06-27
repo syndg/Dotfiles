@@ -9,7 +9,7 @@
         progress, and scroll-spy TOC then build themselves on every page.
      Shared, vanilla: assets/base.css · nav.js · quiz.js. See lesson-kit/README.md. -->
 <title>{{Workspace}} · {{NN}} — {{LESSON TITLE}}</title>
-<link rel="stylesheet" href="../assets/base.css">
+<link rel="stylesheet" href="../assets/base.css?v=1">
 </head>
 <body>
 <div class="app">
@@ -25,7 +25,9 @@
 
         <!-- DIAGRAM (optional but encouraged): build ONE that carries real information about the
              mechanism, in the design language. See lesson-kit/styleguide.html for worked examples
-             (.contract / .flow / .stack patterns). A decorative box with letters is not a diagram. -->
+             (.contract / .flow / .stack patterns). A decorative box with letters is not a diagram.
+             MOBILE-FIRST: give every diagram a phone form (stack / shrink+wrap, never page-scroll).
+             Verify the whole lesson at ~375–500px before shipping. See DESIGN.md › Responsive. -->
       </header>
 
       <main>
@@ -73,10 +75,10 @@
   </div>
 </div>
 
-<script src="../assets/manifest.js"></script>
-<script src="../assets/nav.js"></script>
-<script src="../assets/quiz.js"></script>
+<script src="../assets/manifest.js?v=1"></script>
+<script src="../assets/nav.js?v=1"></script>
+<script src="../assets/quiz.js?v=1"></script>
 <!-- for interactive widgets (a .viz figure, e.g. data-viz="stepper"), also include:
-<script src="../assets/viz.js"></script> -->
+<script src="../assets/viz.js?v=1"></script> -->
 </body>
 </html>

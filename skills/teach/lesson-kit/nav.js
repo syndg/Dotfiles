@@ -39,8 +39,12 @@
     brand.appendChild(el("span", null, EDD.brand.sub || ""));
     rail.appendChild(brand);
 
-    if (EDD.lessons && EDD.lessons.length) rail.appendChild(navGroup("Lessons", EDD.lessons, root));
-    if (EDD.reference && EDD.reference.length) rail.appendChild(navGroup("Reference", EDD.reference, root));
+    // the page list (Lessons + Reference) is the only part that scrolls; the
+    // TOC and progress below stay pinned. See `.railnav` in the stylesheet.
+    var scroll = el("div", { class: "railnav" });
+    if (EDD.lessons && EDD.lessons.length) scroll.appendChild(navGroup("Lessons", EDD.lessons, root));
+    if (EDD.reference && EDD.reference.length) scroll.appendChild(navGroup("Reference", EDD.reference, root));
+    rail.appendChild(scroll);
 
     rail.appendChild(el("hr"));
 
@@ -100,6 +104,59 @@
     sections.forEach(function (s) { spy.observe(s); });
   }
 
+  // ---- mobile drawer (off-canvas rail + top bar + scrim), vanilla ----
+  function buildDrawer(rail) {
+    if (!rail.id) rail.id = "rail";
+    var root = rail.getAttribute("data-root") || "";
+
+    var bar = el("div", { class: "topbar" });
+    var brand = el("a", { class: "brand", href: root + (EDD.brand.home || "index.html") });
+    brand.appendChild(el("b", null, EDD.brand.title || ""));
+    bar.appendChild(brand);
+    var btn = el("button", {
+      class: "navtoggle", type: "button",
+      "aria-label": "Open navigation", "aria-expanded": "false", "aria-controls": rail.id
+    });
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+    bar.appendChild(btn);
+
+    var scrim = el("div", { class: "scrim" });
+    document.body.appendChild(bar);
+    document.body.appendChild(scrim);
+
+    var last = null;
+    function isOpen() { return document.body.classList.contains("nav-open"); }
+    function open() {
+      last = document.activeElement;
+      document.body.classList.add("nav-open");
+      btn.setAttribute("aria-expanded", "true");
+      var first = rail.querySelector("a,button");
+      if (first) first.focus();
+    }
+    function close() {
+      document.body.classList.remove("nav-open");
+      btn.setAttribute("aria-expanded", "false");
+      if (last && last.focus) last.focus();
+    }
+    btn.addEventListener("click", function () { isOpen() ? close() : open(); });
+    scrim.addEventListener("click", close);
+    rail.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest("a.navlink, .toc a, a.brand");
+      if (a) close();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (!isOpen()) return;
+      if (e.key === "Escape") { close(); return; }
+      if (e.key !== "Tab") return;
+      var f = rail.querySelectorAll("a[href],button:not([disabled])");
+      if (!f.length) return;
+      var first = f[0], lastEl = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { lastEl.focus(); e.preventDefault(); }
+      else if (!e.shiftKey && document.activeElement === lastEl) { first.focus(); e.preventDefault(); }
+    });
+    window.addEventListener("resize", function () { if (window.innerWidth > 900) close(); });
+  }
+
   // ---- index rows (landing page) ----
   function fillList(container) {
     var which = container.getAttribute("data-list"); // "lessons" | "reference"
@@ -123,7 +180,7 @@
   // ---- boot ----
   function boot() {
     var rail = document.querySelector("[data-rail]");
-    if (rail) buildRail(rail);
+    if (rail) { buildRail(rail); buildDrawer(rail); }
     var lists = document.querySelectorAll("[data-list]");
     lists.forEach(function (c) { fillList(c); });
   }

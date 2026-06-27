@@ -38,7 +38,10 @@ Use this for any topic. `effect-deep-dive` is the reference instance it was extr
 3. Copy `index.template.html` to `index.html`; fill the hero.
 4. Copy `lesson.template.html` to `lessons/0001-slug.html`; fill it. **Adding a lesson later is one
    manifest entry plus the new file** — no edits to other pages.
-5. (Optional) copy `styleguide.html` for an in-workspace component reference.
+5. **Check it on a phone before you ship.** The kit is mobile-first: design and verify at ~375–500px
+   first (open the drawer, confirm no horizontal page scroll, every diagram fits or scrolls within
+   itself), then enhance up to the laptop view. See `DESIGN.md` › Responsive.
+6. (Optional) copy `styleguide.html` for an in-workspace component reference.
 
 ## Theming per topic
 
@@ -93,6 +96,12 @@ embedded back into the lesson via `<iframe>`. See `styleguide.html` for the step
 Publish the whole tree (`index.html`, `assets/`, `lessons/`, `reference/`) together; the pages depend
 on the `assets/` siblings. For SynDG, use `labctl publish-static <slug> <site-dir>` (see the teach
 publishing reference).
+
+**Cache-busting.** Asset URLs carry a version query (`base.css?v=1`, `nav.js?v=1`, …). When you change
+`base.css` or any shared script, **bump the number in every page** that links it (one find/replace,
+e.g. `?v=1` → `?v=2`). Behind a CDN the HTML is still cached, so a content deploy needs the cache
+purged regardless; the version query guarantees that once the HTML refreshes, the new CSS/JS load
+immediately instead of serving a stale cached asset against fresh HTML.
 
 ## Locking a workspace
 

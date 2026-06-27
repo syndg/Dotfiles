@@ -42,8 +42,29 @@ h1 ~33/680, h2 ~22/660, lead ~18.5, body ~16.5. Prose capped ~74–76ch; code ma
 ## Layout
 
 `.app` = 264px rail + fluid reading column (`.col`, max 1000px). Rail (built by `nav.js`): brand →
-nav groups → hairline → "On this page" TOC → progress (or Print). At ≤900px it becomes a sticky top
-bar; ≤680px compare/multi-column diagrams collapse and code wraps.
+**page list (scrolls)** → hairline → "On this page" TOC → progress (or Print). The page list is the
+only part that scrolls (`.railnav`); brand above and TOC/progress below stay pinned, so they never
+leave the viewport however many lessons accumulate.
+
+## Responsive — mobile-first
+
+**Design and verify the phone first, then enhance up.** A lesson is re-read on a phone as often as a
+laptop; if it only looks good at 1000px it is not done. The non-negotiables:
+
+- **No page-level horizontal scroll, ever.** Wide things (tabular diagrams, long signatures) shrink
+  and wrap to fit, or scroll *inside their own container* — never the page.
+- **Diagrams must degrade, not just shrink.** Every diagram needs a defined small-screen form:
+  multi-column flows stack (`.flow-track`→1fr), the stacking table shrinks its columns + wraps
+  (`.srow`), summary/type lines wrap instead of truncating, oversized display code scales down.
+- **Tighten, don't just reflow.** Desktop padding (22–24px) is too generous on a phone; the phone tier
+  pulls it to ~14–16px so the reading measure stays full. Display type scales down a step.
+- **Touch + reachability.** Tap targets ≥40px; the nav is a thumb-reachable drawer, not a top strip.
+
+Breakpoints (all in `base.css`): **≤900px** the rail becomes a left off-canvas **drawer** (shadcn
+Sheet style) behind a hamburger in a slim top bar, over a scrim (Esc / scrim / link / resize close it);
+**≤680px** compare + multi-column diagrams collapse to one column and code wraps; **≤560px** the phone
+tier tightens padding, scales display type, and makes wide tabular diagrams fit. Verify a new lesson at
+~375–500px **before** publishing — the kit was built laptop-first once and it showed.
 
 ## Components
 
@@ -78,4 +99,6 @@ text, hero-metric SaaS templates. If a page reads as "generic AI dev-docs," rewo
    coloring).
 4. Write sections with `id` + `data-toc`; the TOC + scroll-spy generate themselves.
 5. Point `.next` at the following lesson (or `.next.soon`).
-6. Open locally, then publish the tree.
+6. **Verify at phone width (~375–500px) first** — open the drawer, confirm no horizontal page
+   scroll, and that every diagram fits or scrolls within itself. Then check the laptop view.
+7. Open locally, then publish the tree.
