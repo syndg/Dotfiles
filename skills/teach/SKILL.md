@@ -35,7 +35,14 @@ Some topics may require more skills than knowledge. Learning more about theoreti
 
 ## Lessons
 
-A lesson is the main thing you produce — the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file, saved to `./lessons/` and titled `0001-<dash-case-name>.html` where the number increments each time.
+A lesson is the main thing you produce — the unit in which knowledge and skills reach the user. Each lesson is an HTML page in `./lessons/`, titled `0001-<dash-case-name>.html` where the number increments each time.
+
+**Frontend pattern.** Two delivery modes, both plain HTML/CSS/JS with no framework and no build step:
+
+- **Single self-contained file** — inline `<style>` + `<script>`. The default for the first lesson or two, and for one-off references. Maximally portable.
+- **Shared-asset lesson site** — once a track has several lessons, extract a `./<track>/assets/` set (`site.css` + a `manifest.js` lesson list + a `nav.js` that builds the left rail, scroll-spy TOC, progress, and index, + `quiz.js`) so pages become content-only and adding a lesson is one manifest entry. This is what makes a set feel like a navigable product (index landing + persistent left nav + next-lesson links) instead of loose pages.
+
+Build either from [DESIGN_REFERENCE.md](./DESIGN_REFERENCE.md) — the house guide for lesson frontends (the docs-app shell, the manifest-driven nav, product-register visual principles, accessibility, print). If the workspace locks its own `DESIGN.md` / `lessons/_TEMPLATE.html`, that binds and supersedes the generic guidance.
 
 A lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review.
 
