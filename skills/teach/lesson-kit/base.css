@@ -168,9 +168,13 @@ p code,li code,.h2 code{background:var(--bg-2);border:1px solid var(--line-soft)
 .pane.good>.cap{color:var(--ok)} .pane.good>.cap .m::before{content:"\2713"}
 
 /* ---------- code wells ---------- */
-pre{margin:0;padding:15px 16px;overflow:auto;font-size:13.5px;line-height:1.6;color:var(--ink);flex:1}
+pre{margin:0;padding:15px 16px;overflow:auto;font-size:13.5px;line-height:1.6;color:var(--ink);flex:1;background:transparent}
+pre code{font-family:var(--mono)}
 .codecard{margin:18px 0;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--bg-code)}
 .codecard .cap{display:flex;align-items:center;gap:8px;padding:9px 14px;font:600 11.5px/1 var(--mono);letter-spacing:.04em;color:var(--faint);border-bottom:1px solid var(--line);background:var(--bg-2)}
+.edd-shiki{margin:0!important;padding:15px 16px!important;overflow:auto!important;font:13.5px/1.6 var(--mono)!important;background:transparent!important;color:var(--ink)!important;flex:1;tab-size:2}
+.edd-shiki code{display:block;min-width:max-content;font-family:var(--mono)!important;background:transparent!important;border:0!important;padding:0!important;color:inherit!important}
+.codecard>.edd-shiki,.pane>.edd-shiki{border-radius:0}
 .com{color:var(--faint);font-style:italic}
 .blue{color:var(--kw)} .green{color:var(--str)} .yellow{color:var(--accent)} .red{color:var(--bad)} .white{color:var(--ink)} .purple{color:var(--typ)}
 
@@ -287,6 +291,7 @@ footer b{color:var(--muted);font-weight:600}
   .h2 h2{font-size:20px}
   .col{padding:30px 18px 70px}
   pre{white-space:pre-wrap;word-break:break-word}
+  .edd-shiki code{min-width:0;white-space:pre-wrap;overflow-wrap:anywhere}
   .decode dl div{grid-template-columns:1fr}
   .decode dt{text-align:left}
   .flow-fire{flex-wrap:wrap;row-gap:4px}

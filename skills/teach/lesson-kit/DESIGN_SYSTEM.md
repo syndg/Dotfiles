@@ -41,15 +41,13 @@ use consistently everywhere.
 
 ### Code syntax tokens
 
-| Class | Token | Use |
-|---|---|---|
-| `.blue` | `--kw` `oklch(0.800 0.090 300)` | keywords |
-| `.green` | `--str` `oklch(0.830 0.120 150)` | strings |
-| `.yellow` | `--accent` | literals / numbers |
-| `.purple` | `--typ` `oklch(0.800 0.100 245)` | types |
-| `.com` | `--faint` italic | comments |
-| `.red` | `--bad` | error tokens |
-| `.white` | `--ink` | plain identifiers |
+Code blocks are authored raw and highlighted by Shiki (`assets/shiki.js`) at runtime:
+
+```html
+<pre><code data-lang="ts">const program = Effect.succeed(1)</code></pre>
+```
+
+The Shiki theme maps TextMate scopes to the kit palette: keywords → `--kw`, strings → `--str`, numbers/literals → `--accent`, types/classes → `--typ`, comments → `--faint` italic, invalid/error scopes → `--bad`, plain identifiers → `--ink`. Legacy `.blue` / `.green` / `.yellow` / `.purple` / `.com` / `.red` helpers remain as compatibility aliases, but new lesson code should not use manual token spans.
 
 ## Typography
 

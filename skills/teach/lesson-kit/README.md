@@ -2,8 +2,8 @@
 
 The default frontend for teaching workspaces: a dark, product-register **docs-app** for lessons —
 persistent left nav, scroll-spy table of contents, progress, an index landing, role-distinct
-components, and interactive checks. Vanilla **HTML/CSS/JS**, no framework, no build step. Works on
-`file://` and when published.
+components, interactive checks, and Shiki-powered syntax highlighting. Vanilla **HTML/CSS/JS**, no framework, no build step. Works on
+`file://` and when published. Shiki is a required dependency for workspaces that use the kit (`npm install shiki` or copy `package.template.json`).
 
 Use this for any topic. `effect-deep-dive` is the reference instance it was extracted from.
 
@@ -14,6 +14,8 @@ Use this for any topic. `effect-deep-dive` is the reference instance it was extr
 | `base.css` | The whole stylesheet — tokens + every component. Single source of truth for the look. |
 | `nav.js` | Builds the left rail, scroll-spy TOC, progress / print button, and index rows from the manifest. Reads `window.LESSONS`. |
 | `quiz.js` | Wires every `.quiz` (reads `data-ok` / `data-no`). |
+| `shiki.js` | Loads Shiki and highlights every `<pre><code data-lang="ts">…</code></pre>` using the kit theme. |
+| `package.template.json` | Minimal npm dependency declaration for `shiki`. |
 | `manifest.template.js` | The lesson set. **The only file you edit to add a lesson.** |
 | `lesson.template.html` | Content-only lesson scaffold. |
 | `index.template.html` | Landing page; renders lesson/reference rows from the manifest. |
@@ -26,14 +28,15 @@ Use this for any topic. `effect-deep-dive` is the reference instance it was extr
 <workspace>/
   index.html                 # from index.template.html
   assets/
-    base.css  nav.js  quiz.js   # copied from this kit
-    manifest.js                 # from manifest.template.js, filled in
+    base.css  nav.js  quiz.js  shiki.js   # copied from this kit
+    manifest.js                         # from manifest.template.js, filled in
+  package.json                  # from package.template.json, then npm install
   lessons/NNNN-slug.html     # from lesson.template.html
   reference/*.html           # optional
 ```
 
-1. `mkdir -p <workspace>/assets <workspace>/lessons` and copy `base.css`, `nav.js`, `quiz.js` into
-   `assets/`.
+1. `mkdir -p <workspace>/assets <workspace>/lessons` and copy `base.css`, `nav.js`, `quiz.js`, and `shiki.js` into
+   `assets/`. Copy `package.template.json` to `package.json`, then run `npm install` so `shiki` is explicit in the workspace dependency graph.
 2. Copy `manifest.template.js` to `assets/manifest.js`; set `brand` and add one entry per lesson.
 3. Copy `index.template.html` to `index.html`; fill the hero.
 4. Copy `lesson.template.html` to `lessons/0001-slug.html`; fill it. **Adding a lesson later is one

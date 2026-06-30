@@ -14,9 +14,10 @@ view is `styleguide.html`; setup is `README.md`. All values live in `base.css`.
 
 Pages are content-only. Everything shared lives in `assets/`: `base.css` (look), `manifest.js` (the
 lesson set — the only file edited to add a lesson), `nav.js` (builds rail + scroll-spy TOC + progress
-+ index from the manifest), `quiz.js` (interactive checks), and `viz.js` (optional interactive
-widgets, included only by pages that use one). No framework, no build; works on
-`file://`. A JS manifest (not JSON) is used so it loads via `<script src>` without a server.
++ index from the manifest), `quiz.js` (interactive checks), `shiki.js` (syntax highlighting), and
+`viz.js` (optional interactive widgets, included only by pages that use one). No framework, no build;
+works on `file://`. A JS manifest (not JSON) is used so it loads via `<script src>` without a server.
+Workspaces using the kit should include `shiki` in `package.json` (`package.template.json` ships this).
 
 Per-page wiring: `<aside class="rail" data-rail data-root="../" data-kind="lesson|reference">`;
 sections as `<section id data-toc="Short label">`; index lists as `<div class="list" data-list="lessons" data-root="">`.
@@ -31,8 +32,7 @@ OKLCH, tinted neutrals (hue 264), never `#000`/`#fff`. **One accent.**
   Helpers `.t-a` (ok), `.t-e` (bad), `.t-r` (accent) are three semantic-accent slots — map a subject's
   natural axis onto them and use them **everywhere** that axis appears. Color is information, not
   decoration.
-- Code tokens are restrained: `.blue` keyword, `.green` string, `.yellow` literal, `.purple` type,
-  `.com` comment, `.red` error.
+- Code highlighting is Shiki-powered via `assets/shiki.js`; raw blocks should be authored as `<pre><code data-lang="ts">…</code></pre>`. The Shiki theme maps keywords, strings, literals, types, comments, and invalid/error scopes into the same restrained palette (`--kw`, `--str`, `--accent`, `--typ`, `--faint`, `--bad`).
 
 ## Typography
 
